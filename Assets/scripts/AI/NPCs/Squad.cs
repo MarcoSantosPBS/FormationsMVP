@@ -38,6 +38,11 @@ public class Squad : MonoBehaviour
     {
         if (!isEngaged) return;
 
+        foreach (Unit unit in controller.units)
+        {
+            unit.SetTargetUnit(null);
+        }
+
         isEngaged = false;
         Debug.Log("Desengajou");
     }

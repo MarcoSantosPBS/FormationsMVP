@@ -46,4 +46,9 @@ public class AStartMover : MonoBehaviour, IUnitMover
 
         targetPosition = path[index];
     }
+
+    public void Stop()
+    {
+        throw new System.NotImplementedException();
+    }
 }

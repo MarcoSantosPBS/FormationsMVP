@@ -8,7 +8,8 @@ public class teste : MonoBehaviour
     {
         if (Input.GetKeyUp(KeyCode.E))
         {
-            squad.GetRandomUnit().TakeDamage(100000);
+            Unit unit = squad.GetRandomUnit();
+            if (unit.isAlive) { unit.TakeDamage(100000); }
         }
     }
 }

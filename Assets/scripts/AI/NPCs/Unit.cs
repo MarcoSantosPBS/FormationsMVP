@@ -8,12 +8,16 @@ public class Unit : MonoBehaviour
     [SerializeField] private Health health;
     [SerializeField] public CombatUnit combatUnit;
 
+    public bool isAlive;
+    public Vector2Int squadPosition;
+
     public IUnitMover Mover { get; set; }
     public Squad Squad { get; set; }
 
     private void Awake()
     {
         Mover = GetComponent<IUnitMover>();
+        isAlive = true;
     }
 
     private void Start()
@@ -31,9 +35,10 @@ public class Unit : MonoBehaviour
     private void health_OnDeath()
     {
         UnitCollider.Instance.units.Remove(this);
-        Squad.RemoveUnit(this);
+        isAlive = false;
         gameObject.SetActive(false);
-        Destroy(gameObject, 0.2f);
+        Squad.RemoveUnit(this);
+        //Destroy(gameObject, 0.2f);
     }
 
     public void ApplyPush(Vector3 displacement)

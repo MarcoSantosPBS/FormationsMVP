@@ -22,4 +22,9 @@ public class NavMeshMover : MonoBehaviour, IUnitMover
     {
         agent.SetDestination(destination);
     }
+
+    public void Stop()
+    {
+        agent.ResetPath();
+    }
 }
