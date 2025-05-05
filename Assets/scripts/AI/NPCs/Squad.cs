@@ -28,9 +28,11 @@ public class Squad : MonoBehaviour
         }
     }
 
-    private void HandleCollision()
+    private void HandleCollision(Unit unit)
     {
         isEngaged = true;
+        //controller.RotateToEnemySquad(unit.Squad.gameObject);
+        //controller.UpdateFormationSize(unit.Squad.GetLines(), unit.Squad.GetCollumns());
         UnitCollider.Instance.GetTarget(controller.units);
     }
 
@@ -46,6 +48,9 @@ public class Squad : MonoBehaviour
         isEngaged = false;
         Debug.Log("Desengajou");
     }
+
+    public int GetCollumns() => controller.columns;
+    public int GetLines() => controller.lines;
 
     public void RemoveUnit(Unit unit) => controller.RemoveUnit(unit);
 }

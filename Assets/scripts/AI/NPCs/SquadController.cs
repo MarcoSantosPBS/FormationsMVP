@@ -7,19 +7,20 @@ public class SquadController : MonoBehaviour
     [SerializeField] private int numberOfUnits;
     [SerializeField] private float unitSpacing;
     [SerializeField] GameObject unitPrefab;
+    [SerializeField] public int columns;
+    [SerializeField] public int lines;
 
     public List<Unit> units = new List<Unit>();
 
-    private int columns;
-    private int lines;
+    
     private Squad squad;
 
     private void Awake()
     {
         squad = GetComponent<Squad>();
 
-        columns = Mathf.CeilToInt(Mathf.Sqrt(numberOfUnits));
-        lines = Mathf.CeilToInt((float)numberOfUnits / columns);
+        //columns = Mathf.CeilToInt(Mathf.Sqrt(numberOfUnits));
+        //lines = Mathf.CeilToInt((float)numberOfUnits / columns);
     }
 
     public void RotateToEnemySquad(GameObject enemySquad)
@@ -77,6 +78,12 @@ public class SquadController : MonoBehaviour
         }
     }
 
+    public void UpdateFormationSize(int newLines, int newColumns)
+    {
+        lines = newLines;
+        columns = newColumns;
+    }
+
     public bool RecalculateFormation(Unit deadUnit)
     {
         Unit closestUnit = null;
@@ -88,6 +95,9 @@ public class SquadController : MonoBehaviour
         {
             for (int column = 0; column < columns; column++)
             {
+                int index = line * columns + column;
+                if (index >= units.Count) continue;
+
                 Unit unit = units[line * columns + column];
 
                 if (unit == deadUnit) { continue; }
