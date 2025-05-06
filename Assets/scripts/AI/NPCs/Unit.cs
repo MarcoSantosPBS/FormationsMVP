@@ -38,7 +38,6 @@ public class Unit : MonoBehaviour
         isAlive = false;
         gameObject.SetActive(false);
         Squad.RemoveUnit(this);
-        //Destroy(gameObject, 0.2f);
     }
 
     public void ApplyPush(Vector3 displacement)

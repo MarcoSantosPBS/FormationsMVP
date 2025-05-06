@@ -13,7 +13,7 @@ public class teste : MonoBehaviour
 
     private void Update()
     {
-        if (updaetCom)
+        if (Input.GetKeyDown(KeyCode.U))
         {
             squad.controller.UpdatePositionToCombat(enemySquad, pivo.transform.position);
         }

@@ -15,15 +15,26 @@ public class SquadController : MonoBehaviour
 
     private Vector3 attackDirection = Vector3.zero;
     private Vector3 ortogonalVector = Vector3.zero;
+    private Transform pivot;
 
     private Squad squad;
 
     private void Awake()
     {
         squad = GetComponent<Squad>();
+        pivot = transform;
     }
 
-
+    private void IterateUnits(Action<int, int> method)
+    {
+        for (int line = 0; line < lines; line++)
+        {
+            for (int column = 0; column < columns; column++)
+            {
+                
+            }
+        }
+    }
 
     public void GenerateUnits()
     {
@@ -34,7 +45,7 @@ public class SquadController : MonoBehaviour
             for (int column = 0; column < columns; column++)
             {
                 Vector3 offset = CalculateOffset(column, line);
-                Vector3 startPosition = transform.position + offset;
+                Vector3 startPosition = pivot.position + offset;
 
                 var unitGO = Instantiate(unitPrefab, startPosition, Quaternion.identity);
                 Unit unit = unitGO.GetComponent<Unit>();
@@ -65,7 +76,7 @@ public class SquadController : MonoBehaviour
                 if (!units[index].isActiveAndEnabled) { continue; }
 
                 Vector3 offset = CalculateOffset(column, line);
-                Vector3 destination = transform.position + offset;
+                Vector3 destination = pivot.position + offset;
 
                 Unit unit = units[index];
                 unit.Mover.MoveToPosition(destination);
@@ -75,13 +86,15 @@ public class SquadController : MonoBehaviour
 
     public void UpdatePositionToCombat(Squad attackingSquad, Vector3 pivo)
     {
-        attackDirection = (transform.forward - attackingSquad.transform.forward).normalized;
+        attackDirection = (pivot.forward - attackingSquad.transform.forward).normalized;
         ortogonalVector = Vector3.Cross(Vector3.up, attackDirection);
+        Vector3 enemySquadDirection = (attackingSquad.transform.position - pivot.position).normalized;
 
         lines = attackingSquad.GetLines();
         columns = attackingSquad.GetCollumns();
 
-        transform.forward = attackDirection;
+        pivot.forward = enemySquadDirection;
+        pivot.position = pivo;
 
         for (int line = 0; line < lines; line++)
         {
@@ -93,17 +106,11 @@ public class SquadController : MonoBehaviour
                 Unit unit = units[index];
                 unit.squadPosition = new Vector2Int(column, line);
 
-                Vector3 newPosition = pivo - line * unitSpacing * attackDirection + (column - columns / 2) * unitSpacing * ortogonalVector;
+                Vector3 newPosition = pivot.position - line * unitSpacing * attackDirection + (column - columns / 2) * unitSpacing * ortogonalVector;
                 unit.Mover.MoveToPosition(newPosition);
                 unit.transform.rotation = Quaternion.LookRotation(attackDirection);
             }
         }
-    }
-
-    public void UpdateFormationSize(int newLines, int newColumns)
-    {
-        lines = newLines;
-        columns = newColumns;
     }
 
     public bool RecalculateFormation(Unit deadUnit)
