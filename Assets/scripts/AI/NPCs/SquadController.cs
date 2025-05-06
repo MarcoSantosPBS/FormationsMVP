@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class SquadController : MonoBehaviour
 {
@@ -12,23 +13,17 @@ public class SquadController : MonoBehaviour
 
     public List<Unit> units = new List<Unit>();
 
-    
+    private Vector3 attackDirection = Vector3.zero;
+    private Vector3 ortogonalVector = Vector3.zero;
+
     private Squad squad;
 
     private void Awake()
     {
         squad = GetComponent<Squad>();
-
-        //columns = Mathf.CeilToInt(Mathf.Sqrt(numberOfUnits));
-        //lines = Mathf.CeilToInt((float)numberOfUnits / columns);
     }
 
-    public void RotateToEnemySquad(GameObject enemySquad)
-    {
-        Vector3 direction = enemySquad.transform.position - transform.position;
-        Quaternion rotation = Quaternion.LookRotation(direction);
-        transform.rotation = rotation;
-    }
+
 
     public void GenerateUnits()
     {
@@ -78,6 +73,33 @@ public class SquadController : MonoBehaviour
         }
     }
 
+    public void UpdatePositionToCombat(Squad attackingSquad, Vector3 pivo)
+    {
+        attackDirection = (transform.forward - attackingSquad.transform.forward).normalized;
+        ortogonalVector = Vector3.Cross(Vector3.up, attackDirection);
+
+        lines = attackingSquad.GetLines();
+        columns = attackingSquad.GetCollumns();
+
+        transform.forward = attackDirection;
+
+        for (int line = 0; line < lines; line++)
+        {
+            for (int column = 0; column < columns; column++)
+            {
+                int index = line * columns + column;
+                if (index >= units.Count) return;
+                if (!units[index].isActiveAndEnabled) { continue; }
+                Unit unit = units[index];
+                unit.squadPosition = new Vector2Int(column, line);
+
+                Vector3 newPosition = pivo - line * unitSpacing * attackDirection + (column - columns / 2) * unitSpacing * ortogonalVector;
+                unit.Mover.MoveToPosition(newPosition);
+                unit.transform.rotation = Quaternion.LookRotation(attackDirection);
+            }
+        }
+    }
+
     public void UpdateFormationSize(int newLines, int newColumns)
     {
         lines = newLines;
@@ -105,7 +127,7 @@ public class SquadController : MonoBehaviour
 
                 Vector2Int unitPosition = unit.squadPosition;
                 Vector2Int deadUnitPosition = deadUnit.squadPosition;
-                int penaltyY = (unitPosition.y >= deadUnitPosition.y) ? 5 : 0;
+                int penaltyY = (unitPosition.y <= deadUnitPosition.y) ? 5 : 0;
                 int penaltyX = (unitPosition.x > deadUnitPosition.x) ? 2 : 0;
 
                 float distance = Wx * Mathf.Abs(unitPosition.x - deadUnitPosition.x) + Wy * Mathf.Abs(unitPosition.y - deadUnitPosition.y);
@@ -119,7 +141,12 @@ public class SquadController : MonoBehaviour
             }
         }
 
-        if (closestUnit.squadPosition.y == deadUnit.squadPosition.y || closestUnit.squadPosition.y > deadUnit.squadPosition.y)
+        if (closestUnit == null)
+        {
+            return false;
+        }
+
+        if (closestUnit.squadPosition.y == deadUnit.squadPosition.y || closestUnit.squadPosition.y < deadUnit.squadPosition.y)
         {
             return true;
         }
@@ -149,16 +176,23 @@ public class SquadController : MonoBehaviour
 
     private Vector3 CalculateOffset(int column, int line)
     {
-        var xOffset = (column - (columns - 1) / 2f) * unitSpacing;
-        var zOffset = (line - (lines - 1) / 2f) * unitSpacing;
-        Vector3 offset = new Vector3(xOffset, 0, zOffset);
+        Vector3 offset = -line * unitSpacing * transform.forward + (column - columns / 2) * unitSpacing * transform.right;
 
-        return transform.rotation * offset;
+        return offset;
     }
 
-    public Unit GetRandomUnit()
-    {
-        //return units[new System.Random().Next(lines * columns)];
-        return units[2 * columns + 1];
-    }
+
+    #region backup
+
+    //columns = Mathf.CeilToInt(Mathf.Sqrt(numberOfUnits));
+    //lines = Mathf.CeilToInt((float)numberOfUnits / columns);
+
+    //public void RotateToEnemySquad(GameObject enemySquad)
+    //{
+    //    Vector3 direction = enemySquad.transform.position - transform.position;
+    //    Quaternion rotation = Quaternion.LookRotation(direction);
+    //    transform.rotation = rotation;
+    //}
+
+    #endregion
 }

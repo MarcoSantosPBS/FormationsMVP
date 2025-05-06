@@ -2,22 +2,20 @@ using UnityEngine;
 
 public class teste : MonoBehaviour
 {
-    [SerializeField] private SquadController squad;
+    [SerializeField] private Squad squad;
+    [SerializeField] private Squad enemySquad;
+    [SerializeField] private GameObject pivo;
 
     [SerializeField] public int newLines;
     [SerializeField] public int newColumns;
 
+    public bool updaetCom;
+
     private void Update()
     {
-        if (Input.GetKeyUp(KeyCode.E))
+        if (updaetCom)
         {
-            Unit unit = squad.GetRandomUnit();
-            if (unit.isAlive) { unit.TakeDamage(100000); }
-        }
-
-        if (Input.GetKeyUp(KeyCode.S))
-        {
-            squad.UpdateFormationSize(newLines, newColumns);
+            squad.controller.UpdatePositionToCombat(enemySquad, pivo.transform.position);
         }
     }
 }

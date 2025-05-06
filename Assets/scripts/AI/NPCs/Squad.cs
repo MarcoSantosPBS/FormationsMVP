@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Squad : MonoBehaviour
 {
-    [SerializeField] private SquadController controller;
+    [SerializeField] public SquadController controller;
     [SerializeField] private GameObject debugEnemySquad;
     [SerializeField] public SquadFriendlyType type;
 
@@ -21,19 +21,17 @@ public class Squad : MonoBehaviour
         if (!hasCollided) Desengage();
 
         controller.UpdateUnitsPositions();
-
-        if (debugEnemySquad)
-        {
-            controller.RotateToEnemySquad(debugEnemySquad);
-        }
     }
 
-    private void HandleCollision(Unit unit)
+    private void HandleCollision(Unit enemyUnit, Unit alliedUnit)
     {
-        isEngaged = true;
-        //controller.RotateToEnemySquad(unit.Squad.gameObject);
-        //controller.UpdateFormationSize(unit.Squad.GetLines(), unit.Squad.GetCollumns());
         UnitCollider.Instance.GetTarget(controller.units);
+
+        if (!isEngaged)
+        {
+            isEngaged = true;
+            controller.UpdatePositionToCombat(enemyUnit.Squad, alliedUnit.transform.position);
+        }
     }
 
     public void Desengage()

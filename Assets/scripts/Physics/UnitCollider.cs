@@ -33,7 +33,7 @@ public class UnitCollider : MonoBehaviour
         }
     }
 
-    public bool CheckCollision(List<Unit> units, Action<Unit> OnCollision, bool ignoreAlliedCollision)
+    public bool CheckCollision(List<Unit> units, Action<Unit, Unit> OnCollision, bool ignoreAlliedCollision)
     {
         bool hasAnyUnitCollided = false;
 
@@ -55,7 +55,7 @@ public class UnitCollider : MonoBehaviour
                 if (dist < radiusSum & dist > 0.001f)
                 {
                     hasAnyUnitCollided = true;
-                    OnCollision(neighbor);
+                    OnCollision(neighbor, unit);
                 }
             }
         }
