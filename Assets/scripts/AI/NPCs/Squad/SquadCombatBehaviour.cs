@@ -40,10 +40,6 @@ public class SquadCombatBehaviour : SquadBehaviour
             foreach (Unit enemyUnit in mainOponent.Units)
             {
                 if (!enemyUnit.isAlive || !enemyUnit.isActiveAndEnabled) { continue; }
-                if (currentTargetCounts.TryGetValue(enemyUnit, out Unit allied))
-                {
-                    continue;
-                }
 
                 var dist = Vector3.Distance(unit.transform.position, enemyUnit.transform.position);
 
@@ -63,6 +59,22 @@ public class SquadCombatBehaviour : SquadBehaviour
 
             if (closestEnemy != null)
             {
+                if (currentTargetCounts.TryGetValue(closestEnemy, out Unit allied))
+                {
+                    float oldDistance = Vector3.Distance(allied.transform.position, closestEnemy.transform.position);
+                    if (closestEnemyDistance < oldDistance)
+                    {
+                        allied.SetTargetUnit(null);
+                        currentTargetCounts[closestEnemy] = unit;
+                        FindNewTarget(allied);
+                    }
+                    else
+                    {
+                        FindNewTarget(unit);
+                        continue;
+                    }
+                }
+
                 if (!currentTargetCounts.ContainsKey(closestEnemy))
                 {
                     currentTargetCounts.Add(closestEnemy, unit);
@@ -71,6 +83,49 @@ public class SquadCombatBehaviour : SquadBehaviour
                 unit.SetTargetUnit(closestEnemy);
             }
         }
+    }
+
+    //private float CalculateDistance()
+    //{
+
+    //}
+
+    private void FindNewTarget(Unit unit)
+    {
+        Unit closestEnemy = null;
+        float closestEnemyDistance = -1;
+
+        foreach (Unit enemyUnit in mainOponent.Units)
+        {
+            if (!enemyUnit.isAlive || !enemyUnit.isActiveAndEnabled) { continue; }
+            if (currentTargetCounts.ContainsKey(enemyUnit)) { continue; }
+
+            var dist = Vector3.Distance(unit.transform.position, enemyUnit.transform.position);
+
+            if (closestEnemyDistance == -1f && closestEnemy == null)
+            {
+                closestEnemy = enemyUnit;
+                closestEnemyDistance = dist;
+                continue;
+            }
+
+            if (dist < closestEnemyDistance)
+            {
+                closestEnemy = enemyUnit;
+                closestEnemyDistance = dist;
+            }
+        }
+
+        if (closestEnemy != null)
+        {
+            if (!currentTargetCounts.ContainsKey(closestEnemy))
+            {
+                currentTargetCounts.Add(closestEnemy, unit);
+            }
+
+            unit.SetTargetUnit(closestEnemy);
+        }
+
     }
 
     public void AllignFormationWithEnemy(SquadController attackingSquad, Transform pivo)
