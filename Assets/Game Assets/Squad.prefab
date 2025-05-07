@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6530109917260817733}
   - component: {fileID: 5079699782156380283}
-  - component: {fileID: 8500620804145392328}
+  - component: {fileID: 4930545605184970263}
+  - component: {fileID: 3320002674499559472}
   m_Layer: 0
   m_Name: Squad
   m_TagString: Untagged
@@ -45,11 +46,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9e22fb5f976bdc4e85b2ed3455544e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfUnits: 9
-  unitSpacing: 1.5
   unitPrefab: {fileID: 7564461215700530424, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
-  units: []
---- !u!114 &8500620804145392328
+  type: 0
+  <UnitSpacing>k__BackingField: 1.5
+  <Columns>k__BackingField: 3
+  <Lines>k__BackingField: 3
+--- !u!114 &4930545605184970263
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -58,9 +60,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 5540566645587209867}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc0674f6616908f4798bbdca4120d2a6, type: 3}
+  m_Script: {fileID: 11500000, guid: 5c575757801127045b46ccb012983f3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 5079699782156380283}
-  debugEnemySquad: {fileID: 0}
-  type: 0
+--- !u!114 &3320002674499559472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5540566645587209867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69246fe89755c1c44a5f6012c616f103, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 5079699782156380283}

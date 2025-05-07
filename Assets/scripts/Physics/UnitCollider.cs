@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class UnitCollider : MonoBehaviour
 {
     public static UnitCollider Instance;
     private Quadtree<Unit> quadtree;
+    private Quadtree<SquadController> quadtreeSquad;
     private Rect mapArea = new Rect(-50, -50, 150, 150);
     public List<Unit> units = new List<Unit>();
+    public List<SquadController> squads = new List<SquadController>();
 
     private void Awake()
     {
@@ -25,11 +26,18 @@ public class UnitCollider : MonoBehaviour
     private void FixedUpdate()
     {
         quadtree = new Quadtree<Unit>(4, mapArea);
+        quadtreeSquad = new Quadtree<SquadController>(4, mapArea);
 
         foreach (var unit in units)
         {
             Rect unitAABB = GetUnitAABB(unit);
             quadtree.Insert(unitAABB, unit);
+        }
+
+        foreach (var squad in squads)
+        {
+            Rect squadAABB = GetSquadAABB(squad);
+            quadtreeSquad.Insert(squadAABB, squad);
         }
     }
 
@@ -63,38 +71,22 @@ public class UnitCollider : MonoBehaviour
         return hasAnyUnitCollided;
     }
 
-    public void GetTarget(List<Unit> units)
+    public List<SquadController> CheckSquadCollision(SquadController squadController, bool ignoreAlliedCollision)
     {
-        foreach (Unit unit in units)
+        Rect searchArea = GetSquadAABB(squadController);
+        var neighbors = quadtreeSquad.Search(searchArea);
+        List<SquadController> squadsInRange = new List<SquadController>();
+
+        foreach (SquadController neighbor in neighbors)
         {
-            Rect searchArea = GetUnitAABB(unit);
-            List<Unit> neighbors = quadtree.Search(searchArea);
-            Unit closestEnemy = null;
-            float distanceToClosest = 0f;
+            if (neighbor == squadController) continue;
+            if (ignoreAlliedCollision && neighbor.type == squadController.type) continue;
 
-            foreach (Unit neighbor in neighbors)
-            {
-                if (neighbor == unit) continue;
-                if (neighbor.Squad == unit.Squad) continue;
-
-                if (closestEnemy == null) 
-                {
-                    closestEnemy = neighbor;
-                    distanceToClosest = Vector3.Distance(unit.transform.position, neighbor.transform.position);
-                    continue;
-                }
-
-                float newDistance = Vector3.Distance(unit.transform.position, neighbor.transform.position);
-
-                if (newDistance < distanceToClosest)
-                {
-                    closestEnemy = neighbor;
-                    distanceToClosest = newDistance;
-                }
-            }
-
-            unit.SetTargetUnit(closestEnemy);
+            squadsInRange.Add(neighbor);
+            Debug.Log($"{squadController.name} colidiu com: {neighbor.name}");
         }
+
+        return squadsInRange;
     }
 
     private void ApplyPush(Unit unit, Unit neighbor, Vector3 delta, float dist, float radiusSum)
@@ -118,9 +110,39 @@ public class UnitCollider : MonoBehaviour
         return new Rect(unitPos.x - unit.radius, unitPos.z - unit.radius, unit.radius * 2f, unit.radius * 2f);
     }
 
+    private Rect GetSquadAABB(SquadController squad)
+    {
+        float width = squad.Columns * squad.UnitSpacing;
+        float depth = squad.Lines * squad.UnitSpacing;
+
+        Vector3 halfWidth = 0.5f * squad.Columns * squad.UnitSpacing * squad.transform.right;
+        Vector3 halfDepth = 0.5f * squad.Lines * squad.UnitSpacing * -squad.transform.forward;
+
+        Vector3 corner0 = squad.transform.position - halfWidth - halfDepth * 2;
+        Vector3 corner1 = squad.transform.position + halfWidth - halfDepth * 2;
+        Vector3 corner2 = squad.transform.position - halfWidth * 2f + halfDepth * 3f;
+        Vector3 corner3 = squad.transform.position + halfWidth * 2f + halfDepth * 3f;
+
+        Vector2[] points = new Vector2[4];
+        points[0] = new Vector2(corner0.x, corner0.z);
+        points[1] = new Vector2(corner1.x, corner1.z);
+        points[2] = new Vector2(corner2.x, corner2.z);
+        points[3] = new Vector2(corner3.x, corner3.z);
+
+        float minX = points.Min(p => p.x);
+        float maxX = points.Max(p => p.x);
+        float minY = points.Min(p => p.y);
+        float maxY = points.Max(p => p.y);
+
+        Rect quadRect = new Rect(minX, minY, maxX - minX, maxY - minY);
+
+        return quadRect;
+    }
+
     private void OnDrawGizmos()
     {
         Unit[] units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
+        SquadController[] squads = FindObjectsByType<SquadController>(FindObjectsSortMode.None);
 
         Gizmos.color = Color.yellow;
 
@@ -129,6 +151,29 @@ public class UnitCollider : MonoBehaviour
             Rect aabb = GetUnitAABB(unit);
             DrawRectGizmo(aabb);
         }
+
+        foreach (var squad in squads)
+        {
+            DrawSquadGizmo(squad);
+        }
+    }
+
+    private void DrawSquadGizmo(SquadController squad)
+    {
+        if (squad == null) return;
+
+        Rect aabb = GetSquadAABB(squad);
+
+        Vector3 r0 = new Vector3(aabb.xMin, squad.transform.position.y + 0.1f, aabb.yMin);
+        Vector3 r1 = new Vector3(aabb.xMax, squad.transform.position.y + 0.1f, aabb.yMin);
+        Vector3 r2 = new Vector3(aabb.xMax, squad.transform.position.y + 0.1f, aabb.yMax);
+        Vector3 r3 = new Vector3(aabb.xMin, squad.transform.position.y + 0.1f, aabb.yMax);
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(r0, r1);
+        Gizmos.DrawLine(r1, r2);
+        Gizmos.DrawLine(r2, r3);
+        Gizmos.DrawLine(r3, r0);
     }
 
     private void DrawRectGizmo(Rect rect)
@@ -143,4 +188,40 @@ public class UnitCollider : MonoBehaviour
         Gizmos.DrawLine(topRight, topLeft);
         Gizmos.DrawLine(topLeft, bottomLeft);
     }
+
+    #region backup
+    //public void GetTarget(List<Unit> units)
+    //{
+    //    foreach (Unit unit in units)
+    //    {
+    //        Rect searchArea = GetUnitAABB(unit);
+    //        List<Unit> neighbors = quadtree.Search(searchArea);
+    //        Unit closestEnemy = null;
+    //        float distanceToClosest = 0f;
+
+    //        foreach (Unit neighbor in neighbors)
+    //        {
+    //            if (neighbor == unit) continue;
+    //            if (neighbor.Squad == unit.Squad) continue;
+
+    //            if (closestEnemy == null)
+    //            {
+    //                closestEnemy = neighbor;
+    //                distanceToClosest = Vector3.Distance(unit.transform.position, neighbor.transform.position);
+    //                continue;
+    //            }
+
+    //            float newDistance = Vector3.Distance(unit.transform.position, neighbor.transform.position);
+
+    //            if (newDistance < distanceToClosest)
+    //            {
+    //                closestEnemy = neighbor;
+    //                distanceToClosest = newDistance;
+    //            }
+    //        }
+
+    //        unit.SetTargetUnit(closestEnemy);
+    //    }
+    //}
+    #endregion
 }

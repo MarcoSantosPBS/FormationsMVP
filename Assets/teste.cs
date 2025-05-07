@@ -15,7 +15,7 @@ public class teste : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.U))
         {
-            squad.controller.UpdatePositionToCombat(enemySquad, pivo.transform.position);
+            
         }
     }
 }

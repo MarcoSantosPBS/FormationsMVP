@@ -18,7 +18,7 @@ public class CombatUnit : MonoBehaviour
 
             if (isEnemyDead)
             {
-                targetUnit = null;
+                targetUnit = null;   
             }
         }
     }
@@ -37,5 +37,20 @@ public class CombatUnit : MonoBehaviour
     public void StopAttacking()
     {
         targetUnit = null;
+    }
+
+    public void SetTargetUnit(Unit targetUnit)
+    {
+        this.targetUnit = targetUnit;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (targetUnit == null) { return; }
+        if (GetComponent<Unit>().Squad.type == SquadFriendlyType.Enemy) { return; }
+
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawLine(transform.position, targetUnit.transform.position);
+
     }
 }

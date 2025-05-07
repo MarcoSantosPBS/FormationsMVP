@@ -12,7 +12,7 @@ public class Unit : MonoBehaviour
     public Vector2Int squadPosition;
 
     public IUnitMover Mover { get; set; }
-    public Squad Squad { get; set; }
+    public SquadController Squad { get; set; }
 
     private void Awake()
     {
@@ -29,7 +29,7 @@ public class Unit : MonoBehaviour
     private void Update()
     {
         if (Squad == null) return;
-        transform.rotation = Quaternion.Lerp(transform.rotation, Squad.transform.rotation, Time.deltaTime * 5f);
+        //transform.rotation = Quaternion.Lerp(transform.rotation, Squad.transform.rotation, Time.deltaTime * 5f);
     }
 
     private void health_OnDeath()
@@ -46,19 +46,7 @@ public class Unit : MonoBehaviour
     }
 
     public bool TakeDamage(int damage) => health.TakeDamage(damage);
-    public void SetTargetUnit(Unit targetUnit) => combatUnit.targetUnit = targetUnit;
+    public Unit GetTargetUnit() => combatUnit.targetUnit;
+    public void SetTargetUnit(Unit targetUnit) => combatUnit.SetTargetUnit(targetUnit);
 
-    private void OnDrawGizmos()
-    {
-        if (Squad.type == SquadFriendlyType.Enemy) { Gizmos.color = Color.red; }
-
-        if (Squad.type == SquadFriendlyType.Allied && combatUnit.targetUnit != null)
-        {
-            Gizmos.DrawLine(transform.position, combatUnit.targetUnit.transform.position);
-            return;
-        }
-
-        if (combatUnit.targetUnit != null && combatUnit.targetUnit != this)
-            Gizmos.DrawLine(transform.position, combatUnit.targetUnit.transform.position);
-    }
 }

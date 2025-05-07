@@ -733,8 +733,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e92747567c32b14f80fe55e4e8d3bf9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  squad: {fileID: 1208170035}
-  enemySquad: {fileID: 1484270866}
+  squad: {fileID: 0}
+  enemySquad: {fileID: 0}
   pivo: {fileID: 520528370}
   newLines: 5
   newColumns: 5
@@ -915,8 +915,8 @@ Transform:
   m_GameObject: {fileID: 807830336}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 34.2728, y: -0, z: 49.8031}
-  m_LocalScale: {x: 6.730781, y: 1, z: 4.4526763}
+  m_LocalPosition: {x: 34.2728, y: 0, z: 36.0539}
+  m_LocalScale: {x: 6.730781, y: 1, z: 7.202649}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1025,6 +1025,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4930545605184970263, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: debugPos
+      value: 
+      objectReference: {fileID: 8880133582839126952, guid: b10fc189011108b4db3c8eb781359aca, type: 3}
+    - target: {fileID: 4930545605184970263, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: debugPivot
+      value: 
+      objectReference: {fileID: 2412338031194856821, guid: 8445e1d50f86b2d4282faaf877f9707b, type: 3}
+    - target: {fileID: 4930545605184970263, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: attackingSquad
+      value: 
+      objectReference: {fileID: 1220245183}
+    - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: type
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: lines
       value: 3
@@ -1036,6 +1052,18 @@ PrefabInstance:
     - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: numberOfUnits
       value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: <Lines>k__BackingField
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: <Columns>k__BackingField
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: <UnitSpacing>k__BackingField
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 5540566645587209867, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: m_Name
@@ -1202,26 +1230,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1208170035 stripped
+--- !u!114 &1220245183 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8500620804145392328, guid: f565013043630f14794185f1f63fb7ae, type: 3}
-  m_PrefabInstance: {fileID: 1039650242}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc0674f6616908f4798bbdca4120d2a6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1484270866 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8500620804145392328, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+  m_CorrespondingSourceObject: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
   m_PrefabInstance: {fileID: 2492338526677752706}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc0674f6616908f4798bbdca4120d2a6, type: 3}
+  m_Script: {fileID: 11500000, guid: e9e22fb5f976bdc4e85b2ed3455544e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1424004950 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+  m_PrefabInstance: {fileID: 1039650242}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9e22fb5f976bdc4e85b2ed3455544e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1525542322
@@ -1485,6 +1513,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   units: []
+  squads: []
 --- !u!1001 &2492338526677752706
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1493,6 +1522,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4930545605184970263, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: debugPos
+      value: 
+      objectReference: {fileID: 8880133582839126952, guid: cb2ed71577bcac14c955a2c1eb6343e9, type: 3}
+    - target: {fileID: 4930545605184970263, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: debugPivot
+      value: 
+      objectReference: {fileID: 2412338031194856821, guid: 8445e1d50f86b2d4282faaf877f9707b, type: 3}
+    - target: {fileID: 4930545605184970263, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: attackingSquad
+      value: 
+      objectReference: {fileID: 1424004950}
     - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: lines
       value: 3
@@ -1505,13 +1546,25 @@ PrefabInstance:
       propertyPath: numberOfUnits
       value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: <Lines>k__BackingField
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: <Columns>k__BackingField
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: <UnitSpacing>k__BackingField
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5540566645587209867, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: m_Name
       value: Squad
       objectReference: {fileID: 0}
     - target: {fileID: 6530109917260817733, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 50
+      value: 50.04
       objectReference: {fileID: 0}
     - target: {fileID: 6530109917260817733, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1519,7 +1572,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6530109917260817733, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 35.37
+      value: 54.45
       objectReference: {fileID: 0}
     - target: {fileID: 6530109917260817733, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: m_LocalRotation.w
