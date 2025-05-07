@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 
 public class SquadCombatBehaviour : SquadBehaviour
@@ -41,7 +42,7 @@ public class SquadCombatBehaviour : SquadBehaviour
             {
                 if (!enemyUnit.isAlive || !enemyUnit.isActiveAndEnabled) { continue; }
 
-                var dist = Vector3.Distance(unit.transform.position, enemyUnit.transform.position);
+                var dist = CalculateDistance(unit, enemyUnit);
 
                 if (closestEnemyDistance == -1f && closestEnemy == null)
                 {
@@ -61,16 +62,16 @@ public class SquadCombatBehaviour : SquadBehaviour
             {
                 if (currentTargetCounts.TryGetValue(closestEnemy, out Unit allied))
                 {
-                    float oldDistance = Vector3.Distance(allied.transform.position, closestEnemy.transform.position);
+                    float oldDistance = CalculateDistance(allied, closestEnemy);
                     if (closestEnemyDistance < oldDistance)
                     {
                         allied.SetTargetUnit(null);
                         currentTargetCounts[closestEnemy] = unit;
-                        FindNewTarget(allied);
+                        FindNewTarget(allied, new List<Unit>());
                     }
                     else
                     {
-                        FindNewTarget(unit);
+                        FindNewTarget(unit, new List<Unit>() { closestEnemy });
                         continue;
                     }
                 }
@@ -85,12 +86,24 @@ public class SquadCombatBehaviour : SquadBehaviour
         }
     }
 
-    //private float CalculateDistance()
-    //{
+    private float CalculateDistance(Unit alliedUnit, Unit enemyUnit)
+    {
+        Vector3 pivot = controller.GetCentroid();
+        Vector3 dirToEnemy = enemyUnit.transform.position - pivot;
+        Vector3 forward = (mainOponent.GetCentroid() - controller.GetCentroid()).normalized;
+        Vector3 right = Vector3.Cross(Vector3.up, forward);
 
-    //}
+        float localX = Vector3.Dot(dirToEnemy, right);
+        float localZ = Vector3.Dot(dirToEnemy, forward);
 
-    private void FindNewTarget(Unit unit)
+        float expectedColumn = (alliedUnit.squadPosition.x - (columns - 1) / 2.0f) * unitSpacing;
+        float lateralError = Mathf.Abs(localX - expectedColumn);
+        float cost = lateralError + Mathf.Abs(localZ);
+
+        return cost;
+    }
+
+    private void FindNewTarget(Unit unit, List<Unit> closedList)
     {
         Unit closestEnemy = null;
         float closestEnemyDistance = -1;
@@ -98,9 +111,9 @@ public class SquadCombatBehaviour : SquadBehaviour
         foreach (Unit enemyUnit in mainOponent.Units)
         {
             if (!enemyUnit.isAlive || !enemyUnit.isActiveAndEnabled) { continue; }
-            if (currentTargetCounts.ContainsKey(enemyUnit)) { continue; }
+            if (closedList.Contains(enemyUnit)) { continue; }
 
-            var dist = Vector3.Distance(unit.transform.position, enemyUnit.transform.position);
+            var dist = CalculateDistance(unit, enemyUnit);
 
             if (closestEnemyDistance == -1f && closestEnemy == null)
             {
@@ -118,6 +131,23 @@ public class SquadCombatBehaviour : SquadBehaviour
 
         if (closestEnemy != null)
         {
+            if (currentTargetCounts.TryGetValue(closestEnemy, out Unit allied))
+            {
+                float oldDistance = CalculateDistance(allied, closestEnemy);
+                if (closestEnemyDistance < oldDistance)
+                {
+                    allied.SetTargetUnit(null);
+                    currentTargetCounts[closestEnemy] = unit;
+                    FindNewTarget(allied, new List<Unit>() { closestEnemy });
+                }
+                else
+                {
+                    closedList.Add(closestEnemy);
+                    FindNewTarget(unit, closedList);
+                    return;
+                }
+            }
+
             if (!currentTargetCounts.ContainsKey(closestEnemy))
             {
                 currentTargetCounts.Add(closestEnemy, unit);
