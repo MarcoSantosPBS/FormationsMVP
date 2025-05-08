@@ -71,6 +71,24 @@ public class UnitCollider : MonoBehaviour
         return hasAnyUnitCollided;
     }
 
+    public List<Unit> GetUnitsCloseTo(Unit unit, bool ignoreAlliedCollision, bool ignoreEnemyCollision)
+    {
+        List<Unit> allNeighbors = new List<Unit>();
+
+        var neighbors = quadtree.Search(unit.GetNeighborhoodRange());
+
+        foreach (Unit neighbor in neighbors)
+        {
+            if (neighbor == unit) continue;
+            if (ignoreAlliedCollision && neighbor.Squad == unit.Squad) continue;
+            if (ignoreEnemyCollision && neighbor.Squad != unit.Squad) continue;
+
+            allNeighbors.Add(neighbor);
+        }
+
+        return allNeighbors;
+    }
+
     public List<SquadController> CheckSquadCollision(SquadController squadController, bool ignoreAlliedCollision)
     {
         Rect searchArea = GetSquadAABB(squadController);
@@ -83,7 +101,6 @@ public class UnitCollider : MonoBehaviour
             if (ignoreAlliedCollision && neighbor.type == squadController.type) continue;
 
             squadsInRange.Add(neighbor);
-            Debug.Log($"{squadController.name} colidiu com: {neighbor.name}");
         }
 
         return squadsInRange;
@@ -150,6 +167,7 @@ public class UnitCollider : MonoBehaviour
         {
             Rect aabb = GetUnitAABB(unit);
             DrawRectGizmo(aabb);
+            DrawRectGizmo(unit.GetNeighborhoodRange());
         }
 
         foreach (var squad in squads)

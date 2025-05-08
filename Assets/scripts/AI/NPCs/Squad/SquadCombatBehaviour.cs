@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
@@ -40,7 +41,9 @@ public class SquadCombatBehaviour : SquadBehaviour
 
             foreach (Unit enemyUnit in mainOponent.Units)
             {
+                bool teste = IsBlockedByAnotherEnemy(unit, enemyUnit);
                 if (!enemyUnit.isAlive || !enemyUnit.isActiveAndEnabled) { continue; }
+                //if (IsBlockedByAnotherEnemy(unit, enemyUnit)) { continue; }
 
                 var dist = CalculateDistance(unit, enemyUnit);
 
@@ -103,15 +106,24 @@ public class SquadCombatBehaviour : SquadBehaviour
         return cost;
     }
 
+    public bool AreAllEnemiesBeingTargeted(List<Unit> closedList)
+    {
+        List<Unit> aliveEnemyUnits = mainOponent.Units.Where(x => x.isAlive).ToList();
+
+        return !aliveEnemyUnits.Except(closedList).Any() && aliveEnemyUnits.Count == closedList.Count;
+    }
+
     private void FindNewTarget(Unit unit, List<Unit> closedList)
     {
         Unit closestEnemy = null;
         float closestEnemyDistance = -1;
+        bool areAllEnemiesTargeted = AreAllEnemiesBeingTargeted(closedList);
 
         foreach (Unit enemyUnit in mainOponent.Units)
         {
             if (!enemyUnit.isAlive || !enemyUnit.isActiveAndEnabled) { continue; }
-            if (closedList.Contains(enemyUnit)) { continue; }
+            if (closedList.Contains(enemyUnit) && !areAllEnemiesTargeted) { continue; }
+            //if (IsBlockedByAnotherEnemy(unit, enemyUnit, mainOponent.Units)) { continue; }
 
             var dist = CalculateDistance(unit, enemyUnit);
 
@@ -133,6 +145,12 @@ public class SquadCombatBehaviour : SquadBehaviour
         {
             if (currentTargetCounts.TryGetValue(closestEnemy, out Unit allied))
             {
+                if (areAllEnemiesTargeted)
+                {
+                    unit.SetTargetUnit(closestEnemy);
+                    return;
+                }
+
                 float oldDistance = CalculateDistance(allied, closestEnemy);
                 if (closestEnemyDistance < oldDistance)
                 {
@@ -158,9 +176,52 @@ public class SquadCombatBehaviour : SquadBehaviour
 
     }
 
+    private bool IsBlockedByAnotherEnemy(Unit source, Unit target)
+    {
+        var neighbors = UnitCollider.Instance.GetUnitsCloseTo(target, false, true);
+        Vector3 dirToEnemy = (target.transform.position - source.transform.position).normalized;
+        float side = Vector3.Dot(source.transform.right, dirToEnemy);
+
+        // está a direita?
+        if (side > 0)
+        {
+            return HasUnitAtSide(target.transform.right, target, neighbors);
+        }
+        else
+        {
+            return HasUnitAtSide(-target.transform.right, target, neighbors);
+        }
+    }
+
+    private bool HasUnitAtSide(Vector3 side, Unit target, List<Unit> neighbors)
+    {
+        Vector3 sidePosition = target.transform.position + side * target.Squad.UnitSpacing;
+
+        foreach (Unit neighbor in neighbors)
+        {
+            if (Vector3.Distance(sidePosition, neighbor.transform.position) < 0.5f) return true;
+        }
+
+        return false;
+    }
+
     public void AllignFormationWithEnemy(SquadController attackingSquad, Transform pivo)
     {
         mainOponent = attackingSquad;
+
+
+        foreach (Unit enemy in mainOponent.Units)
+        {
+            Vector3 dirToEnemy = (enemy.transform.position - controller.GetCentroid()).normalized;
+            Vector3 forward = attackingSquad.GetCentroid() - controller.GetCentroid();
+            Vector3 right = Vector3.Cross(Vector3.up, forward);
+
+            float localX = Vector3.Dot(dirToEnemy, right);
+            float localZ = Vector3.Dot(dirToEnemy, forward);
+
+            enemy.name = $"({localX}, {localZ})";
+        }
+        return;
         Vector3 enemySquadDirection = (attackingSquad.GetCentroid() - controller.GetCentroid()).normalized;
         Vector3 ortogonalVector = Vector3.Cross(Vector3.up, enemySquadDirection);
 

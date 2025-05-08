@@ -5,6 +5,8 @@ public class CombatUnit : MonoBehaviour
     [SerializeField] public int damage;
     [SerializeField] private float attackInterval = 2.5f;
     [SerializeField] public Unit targetUnit;
+    [SerializeField] private float attackRange = 1f;
+    [SerializeField] private Unit unit;
 
     private float lastAttackTime = -1;
 
@@ -14,6 +16,16 @@ public class CombatUnit : MonoBehaviour
 
         if (targetUnit != null)
         {
+            if (Vector3.Distance(transform.position, targetUnit.transform.position) > attackRange) 
+            {
+                Vector3 direction = targetUnit.transform.position - transform.position;
+                //unit.Mover.MoveToPosition(transform.position + direction);
+            }
+            else
+            {
+                unit.Mover.Stop();
+            }
+
             bool isEnemyDead = Attack();
 
             if (isEnemyDead)

@@ -510,6 +510,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   radius: 1
   mass: 1
+  neighborhoodRange: 2
   health: {fileID: -2373391959517814697}
   combatUnit: {fileID: 3614991884403593872}
   isAlive: 0
@@ -542,6 +543,8 @@ MonoBehaviour:
   damage: 0
   attackInterval: 2.5
   targetUnit: {fileID: 0}
+  attackRange: 2
+  unit: {fileID: 6235931275490182718}
 --- !u!114 &-2373391959517814697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -554,7 +557,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19473811daa1b0443a0f367827aa2247, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 5
+  maxHealth: 3
   healthBar: {fileID: 1541505149619199323}
   currentHealth: 0
 --- !u!195 &-3733175327805781552
@@ -567,7 +570,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 7
+  m_Speed: 0
   m_Acceleration: 1000
   avoidancePriority: 50
   m_AngularSpeed: 1000

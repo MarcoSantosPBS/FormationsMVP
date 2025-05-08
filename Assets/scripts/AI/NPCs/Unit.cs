@@ -5,6 +5,7 @@ public class Unit : MonoBehaviour
 {
     [SerializeField] public float radius;
     [SerializeField] public float mass;
+    [SerializeField] public float neighborhoodRange;
     [SerializeField] private Health health;
     [SerializeField] public CombatUnit combatUnit;
 
@@ -43,6 +44,12 @@ public class Unit : MonoBehaviour
     public void ApplyPush(Vector3 displacement)
     {
         transform.position += displacement;
+    }
+
+    public Rect GetNeighborhoodRange()
+    {
+        Vector3 unitPos = transform.position;
+        return new Rect(unitPos.x - neighborhoodRange, unitPos.z - neighborhoodRange, neighborhoodRange * 2f, neighborhoodRange * 2f);
     }
 
     public bool TakeDamage(int damage) => health.TakeDamage(damage);
