@@ -41,7 +41,7 @@ public class SquadController : MonoBehaviour
 
         if (goToCombateState)
         {
-            if (squadsInRange.Count > 0) 
+            if (squadsInRange.Count > 0 && !isEngaged) 
             {
                 idleBehaviour.Deactivate();
                 combatBehaviour.AllignFormationWithEnemy(squadsInRange[0], transform);

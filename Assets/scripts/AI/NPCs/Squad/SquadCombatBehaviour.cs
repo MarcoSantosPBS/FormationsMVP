@@ -22,15 +22,13 @@ public class SquadCombatBehaviour : SquadBehaviour
 
     public override void Activate()
     {
-        Dictionary<Unit, Unit> currentTargetCounts = new Dictionary<Unit, Unit>();
+        currentTargetPairs = new Dictionary<Unit, Unit>();
         isActive = false;
     }
 
     public void Fight()
     {
         if (mainOponent == null) { return; }
-
-        currentTargetPairs = new Dictionary<Unit, Unit>();
 
         foreach (Unit unit in units)
         {
@@ -197,12 +195,14 @@ public class SquadCombatBehaviour : SquadBehaviour
     {
         bool isBlockedLaterally = false;
         bool isBlockedFrontally = false;
+        Vector3 sourceCentroid = source.Squad.GetCentroid();
 
         Vector3 targetPos = target.transform.position;
         Vector3 dirToEnemy = (target.transform.position - source.transform.position).normalized;
+        Vector3 dirCentroidToEnemy = (target.transform.position - sourceCentroid).normalized;
+        Vector3 localRight = Vector3.Cross(Vector3.up, dirCentroidToEnemy);
 
         float distanceToTarget = CalculateDistance(source.squadPosition.x, targetPos);
-
         float sourceToAlvoRight = Vector3.Dot(dirToEnemy, source.transform.right);
 
         foreach (var other in mainOponent.Units)
@@ -211,18 +211,17 @@ public class SquadCombatBehaviour : SquadBehaviour
 
             Vector3 otherPos = other.transform.position;
             Vector3 dirTargetToNeighbor = (otherPos - targetPos).normalized;
-            Vector3 dirToNeighbor = (other.transform.position - target.transform.position).normalized;
 
-            float alvoToOtherRight = Vector3.Dot(-dirTargetToNeighbor, Vector3.right);
+            float alvoToOtherRight = Vector3.Dot(-dirTargetToNeighbor, localRight);
             float distanceToOther = CalculateDistance(source.squadPosition.x, otherPos);
-            float alvoToOTherForward = Vector3.Dot(dirTargetToNeighbor, -dirToEnemy);
+            float alvoToOTherForward = Vector3.Dot(dirTargetToNeighbor, -dirCentroidToEnemy);
 
             if (distanceToOther > distanceToTarget) continue;
 
-            float lateralOffset = Vector3.Cross(dirTargetToNeighbor, -dirToEnemy.normalized).magnitude * dirToNeighbor.magnitude;
-            float frontalOffset = Vector3.Cross(dirTargetToNeighbor, Vector3.right).magnitude * dirToNeighbor.magnitude;
+            float lateralOffset = Vector3.Cross(dirTargetToNeighbor, -dirCentroidToEnemy.normalized).magnitude * dirTargetToNeighbor.magnitude;
+            float frontalOffset = Vector3.Cross(dirTargetToNeighbor, localRight).magnitude * dirTargetToNeighbor.magnitude;
 
-            float targetToOther = Vector3.Dot(dirTargetToNeighbor, Vector3.right);
+            float targetToOther = Vector3.Dot(dirTargetToNeighbor, localRight);
             bool hasSomeoneOnCommingSide = sourceToAlvoRight * alvoToOtherRight >= 0f;
 
             if (hasSomeoneOnCommingSide)
@@ -233,7 +232,7 @@ public class SquadCombatBehaviour : SquadBehaviour
                 }
             }
 
-            if ((alvoToOTherForward - lateralOffset) > 0.75)
+            if ((alvoToOTherForward - lateralOffset) > 0.50)
             {
                 isBlockedFrontally = true;
             }

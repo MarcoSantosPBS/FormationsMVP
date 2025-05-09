@@ -16,8 +16,8 @@ public class teste : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Vector3 dirToAlvo = (debugAlvo.position - debugSource.position).normalized;
-        Vector3 dirToNeighbor = (debugNeighbor.position - debugSource.position).normalized;
+        Vector3 dirToAlvo = (debugAlvo.position - debugPivo.position).normalized;
+        Vector3 dirToNeighbor = (debugNeighbor.position - debugPivo.position).normalized;
         Vector3 dirTargetToNeighbor = (debugNeighbor.position - debugAlvo.position).normalized;
 
         float sourceToAlvoRight = Vector3.Dot(dirToAlvo, debugSource.right);
@@ -39,14 +39,14 @@ public class teste : MonoBehaviour
             isBlockingLaterally = false;
         }
 
-        bool isBlockedFrontally = (alvoToOTherForward - lateralOffset) > 0.75;
+        bool isBlockedFrontally = (alvoToOTherForward - lateralOffset) > 0.50;
 
         Debug.Log($"{alvoToOtherRight}");
         //Debug.Log($"Está bloqueando lateralmente: {isBlockingLaterally}");
         Debug.Log($"Está bloqueando frontalmente: {isBlockedFrontally}");
         
         Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(debugSource.position, debugAlvo.position);
+        Gizmos.DrawLine(debugPivo.position, debugAlvo.position);
 
         Gizmos.color = Color.magenta;
         Gizmos.DrawLine(debugAlvo.position, debugNeighbor.position);
