@@ -7,7 +7,7 @@ using UnityEngine;
 public class SquadCombatBehaviour : SquadBehaviour
 {
     private SquadController mainOponent;
-    private Dictionary<Unit, Unit> currentTargetCounts;
+    private Dictionary<Unit, Unit> currentTargetPairs;
 
     protected override void Start()
     {
@@ -30,7 +30,7 @@ public class SquadCombatBehaviour : SquadBehaviour
     {
         if (mainOponent == null) { return; }
 
-        currentTargetCounts = new Dictionary<Unit, Unit>();
+        currentTargetPairs = new Dictionary<Unit, Unit>();
 
         foreach (Unit unit in units)
         {
@@ -63,13 +63,13 @@ public class SquadCombatBehaviour : SquadBehaviour
 
             if (closestEnemy != null)
             {
-                if (currentTargetCounts.TryGetValue(closestEnemy, out Unit allied))
+                if (currentTargetPairs.TryGetValue(closestEnemy, out Unit allied))
                 {
                     float oldDistance = CalculateDistance(allied, closestEnemy);
                     if (closestEnemyDistance < oldDistance)
                     {
                         allied.SetTargetUnit(null);
-                        currentTargetCounts[closestEnemy] = unit;
+                        currentTargetPairs[closestEnemy] = unit;
                         FindNewTarget(allied, new List<Unit>());
                     }
                     else
@@ -79,14 +79,77 @@ public class SquadCombatBehaviour : SquadBehaviour
                     }
                 }
 
-                if (!currentTargetCounts.ContainsKey(closestEnemy))
+                if (!currentTargetPairs.ContainsKey(closestEnemy))
                 {
-                    currentTargetCounts.Add(closestEnemy, unit);
+                    currentTargetPairs.Add(closestEnemy, unit);
                 }
 
                 unit.SetTargetUnit(closestEnemy);
             }
         }
+    }
+
+    private void FindNewTarget(Unit unit, List<Unit> closedList)
+    {
+        Unit closestEnemy = null;
+        float closestEnemyDistance = -1;
+        bool areAllEnemiesTargeted = AreAllEnemiesBeingTargeted(closedList);
+
+        foreach (Unit enemyUnit in mainOponent.Units)
+        {
+            if (!enemyUnit.isAlive || !enemyUnit.isActiveAndEnabled) { continue; }
+            if (closedList.Contains(enemyUnit) && !areAllEnemiesTargeted) { continue; }
+            if (IsBlockedByCloserEnemy(unit, enemyUnit)) { continue; }
+
+            var dist = CalculateDistance(unit, enemyUnit);
+
+            if (closestEnemyDistance == -1f && closestEnemy == null)
+            {
+                closestEnemy = enemyUnit;
+                closestEnemyDistance = dist;
+                continue;
+            }
+
+            if (dist < closestEnemyDistance)
+            {
+                closestEnemy = enemyUnit;
+                closestEnemyDistance = dist;
+            }
+        }
+
+        if (closestEnemy != null)
+        {
+            if (currentTargetPairs.TryGetValue(closestEnemy, out Unit allied))
+            {
+                if (areAllEnemiesTargeted)
+                {
+                    unit.SetTargetUnit(closestEnemy);
+                    return;
+                }
+
+                float oldDistance = CalculateDistance(allied, closestEnemy);
+                if (closestEnemyDistance < oldDistance)
+                {
+                    allied.SetTargetUnit(null);
+                    currentTargetPairs[closestEnemy] = unit;
+                    FindNewTarget(allied, new List<Unit>() { closestEnemy });
+                }
+                else
+                {
+                    closedList.Add(closestEnemy);
+                    FindNewTarget(unit, closedList);
+                    return;
+                }
+            }
+
+            if (!currentTargetPairs.ContainsKey(closestEnemy))
+            {
+                currentTargetPairs.Add(closestEnemy, unit);
+            }
+
+            unit.SetTargetUnit(closestEnemy);
+        }
+
     }
 
     private float CalculateDistance(Unit alliedUnit, Unit enemyUnit)
@@ -130,120 +193,60 @@ public class SquadCombatBehaviour : SquadBehaviour
         return !aliveEnemyUnits.Except(closedList).Any() && aliveEnemyUnits.Count == closedList.Count;
     }
 
-    private void FindNewTarget(Unit unit, List<Unit> closedList)
-    {
-        Unit closestEnemy = null;
-        float closestEnemyDistance = -1;
-        bool areAllEnemiesTargeted = AreAllEnemiesBeingTargeted(closedList);
-
-        foreach (Unit enemyUnit in mainOponent.Units)
-        {
-            if (!enemyUnit.isAlive || !enemyUnit.isActiveAndEnabled) { continue; }
-            if (closedList.Contains(enemyUnit) && !areAllEnemiesTargeted) { continue; }
-            if (IsBlockedByCloserEnemy(unit, enemyUnit)) { continue; }
-
-            var dist = CalculateDistance(unit, enemyUnit);
-
-            if (closestEnemyDistance == -1f && closestEnemy == null)
-            {
-                closestEnemy = enemyUnit;
-                closestEnemyDistance = dist;
-                continue;
-            }
-
-            if (dist < closestEnemyDistance)
-            {
-                closestEnemy = enemyUnit;
-                closestEnemyDistance = dist;
-            }
-        }
-
-        if (closestEnemy != null)
-        {
-            if (currentTargetCounts.TryGetValue(closestEnemy, out Unit allied))
-            {
-                if (areAllEnemiesTargeted)
-                {
-                    unit.SetTargetUnit(closestEnemy);
-                    return;
-                }
-
-                float oldDistance = CalculateDistance(allied, closestEnemy);
-                if (closestEnemyDistance < oldDistance)
-                {
-                    allied.SetTargetUnit(null);
-                    currentTargetCounts[closestEnemy] = unit;
-                    FindNewTarget(allied, new List<Unit>() { closestEnemy });
-                }
-                else
-                {
-                    closedList.Add(closestEnemy);
-                    FindNewTarget(unit, closedList);
-                    return;
-                }
-            }
-
-            if (!currentTargetCounts.ContainsKey(closestEnemy))
-            {
-                currentTargetCounts.Add(closestEnemy, unit);
-            }
-
-            unit.SetTargetUnit(closestEnemy);
-        }
-
-    }
-
     private bool IsBlockedByCloserEnemy(Unit source, Unit target)
     {
-        Vector3 sourcePos = source.transform.position;
+        bool isBlockedLaterally = false;
+        bool isBlockedFrontally = false;
+
         Vector3 targetPos = target.transform.position;
-
         Vector3 dirToEnemy = (target.transform.position - source.transform.position).normalized;
-        float side = Vector3.Dot(source.transform.right, dirToEnemy);
 
-        Vector3 directionToTarget = (targetPos - sourcePos).normalized;
         float distanceToTarget = CalculateDistance(source.squadPosition.x, targetPos);
+
+        float sourceToAlvoRight = Vector3.Dot(dirToEnemy, source.transform.right);
 
         foreach (var other in mainOponent.Units)
         {
             if (!other.isAlive || other == target) continue;
 
             Vector3 otherPos = other.transform.position;
-            Vector3 directionToOther = (otherPos - sourcePos).normalized;
+            Vector3 dirTargetToNeighbor = (otherPos - targetPos).normalized;
+            Vector3 dirToNeighbor = (other.transform.position - target.transform.position).normalized;
+
+            float alvoToOtherRight = Vector3.Dot(-dirTargetToNeighbor, Vector3.right);
             float distanceToOther = CalculateDistance(source.squadPosition.x, otherPos);
+            float alvoToOTherForward = Vector3.Dot(dirTargetToNeighbor, -dirToEnemy);
 
             if (distanceToOther > distanceToTarget) continue;
 
-            float lateralOffset = Vector3.Cross(directionToOther, directionToTarget).y;
+            float lateralOffset = Vector3.Cross(dirTargetToNeighbor, -dirToEnemy.normalized).magnitude * dirToNeighbor.magnitude;
+            float frontalOffset = Vector3.Cross(dirTargetToNeighbor, Vector3.right).magnitude * dirToNeighbor.magnitude;
 
-            bool isBlockingPath = (side < 0 && lateralOffset < 0) || (side > 0 && lateralOffset > 0);
+            float targetToOther = Vector3.Dot(dirTargetToNeighbor, Vector3.right);
+            bool hasSomeoneOnCommingSide = sourceToAlvoRight * alvoToOtherRight >= 0f;
 
-            if (isBlockingPath)
+            if (hasSomeoneOnCommingSide)
+            {
+                if ((Mathf.Abs(alvoToOtherRight) - frontalOffset) > 0.2f)
+                {
+                    isBlockedLaterally = true;
+                }
+            }
+
+            if ((alvoToOTherForward - lateralOffset) > 0.75)
+            {
+                isBlockedFrontally = true;
+            }
+
+            bool isBlocking = isBlockedLaterally && isBlockedFrontally;
+
+            if (isBlocking)
             {
                 return true;
             }
         }
 
         return false;
-    }
-
-    private float GetRelativeX(Unit enemy)
-    {
-        Vector3 pivot = controller.GetCentroid();
-        Vector3 dirToEnemy = enemy.transform.position - pivot;
-        Vector3 forward = (mainOponent.GetCentroid() - controller.GetCentroid()).normalized;
-        Vector3 right = Vector3.Cross(Vector3.up, forward);
-
-        return Vector3.Dot(dirToEnemy, right);
-    }
-
-    private float GetRelativeZ(Unit enemy)
-    {
-        Vector3 pivot = controller.GetCentroid();
-        Vector3 dirToEnemy = enemy.transform.position - pivot;
-        Vector3 forward = (mainOponent.GetCentroid() - controller.GetCentroid()).normalized;
-
-        return Vector3.Dot(dirToEnemy, forward);
     }
 
     public void AllignFormationWithEnemy(SquadController attackingSquad, Transform pivo)
@@ -274,51 +277,31 @@ public class SquadCombatBehaviour : SquadBehaviour
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        if (mainOponent == null) { return; }
-
-        Unit unidade1 = controller.Units[columns * 0 + 0];
-        Unit unidade2 = controller.Units[columns * 0 + 6];
-
-        Unit inimigo1 = mainOponent.Units[mainOponent.Columns * 1 + 1];
-        Unit inimigo2 = mainOponent.Units[mainOponent.Columns * 1 + 2];
-        Unit inimigo3 = mainOponent.Units[mainOponent.Columns * 1 + 0];
-
-        var dir1ToTarget = (inimigo1.transform.position - unidade1.transform.position).normalized;
-        var dir1ToOther = (inimigo2.transform.position - unidade1.transform.position).normalized;
-
-        var dir2ToTarget = (inimigo1.transform.position - unidade2.transform.position).normalized;
-        var dir2ToOther = (inimigo3.transform.position - unidade2.transform.position).normalized;
-
-        Vector3 sla = Vector3.Cross(dir1ToOther, dir1ToTarget);
-        Vector3 sla2 = Vector3.Cross(dir2ToOther, dir2ToTarget);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(unidade1.transform.position, unidade1.transform.position + sla * 20f);
-
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(unidade1.transform.position, unidade1.transform.position + dir1ToTarget * 3f);
-
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(unidade1.transform.position, unidade1.transform.position + dir1ToOther * 3f);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(unidade2.transform.position, unidade2.transform.position + sla2 * 20f);
-
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(unidade2.transform.position, unidade2.transform.position + dir2ToTarget * 3f);
-
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(unidade2.transform.position, unidade2.transform.position + dir2ToOther * 3f);
-    }
-
     #region backup
     //if (!hasAdjustedLxC)
     //{
     //    lines = attackingSquad.Lines;
     //    columns = attackingSquad.Columns;
     //    hasAdjustedLxC = true;
+    //}
+
+    //private float GetRelativeX(Unit enemy)
+    //{
+    //    Vector3 pivot = controller.GetCentroid();
+    //    Vector3 dirToEnemy = enemy.transform.position - pivot;
+    //    Vector3 forward = (mainOponent.GetCentroid() - controller.GetCentroid()).normalized;
+    //    Vector3 right = Vector3.Cross(Vector3.up, forward);
+
+    //    return Vector3.Dot(dirToEnemy, right);
+    //}
+
+    //private float GetRelativeZ(Unit enemy)
+    //{
+    //    Vector3 pivot = controller.GetCentroid();
+    //    Vector3 dirToEnemy = enemy.transform.position - pivot;
+    //    Vector3 forward = (mainOponent.GetCentroid() - controller.GetCentroid()).normalized;
+
+    //    return Vector3.Dot(dirToEnemy, forward);
     //}
     #endregion
 }

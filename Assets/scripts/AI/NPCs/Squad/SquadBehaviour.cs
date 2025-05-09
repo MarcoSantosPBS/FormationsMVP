@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -39,7 +40,7 @@ public abstract class SquadBehaviour : MonoBehaviour
         isActive = false;
     }
 
-    public void UpdateUnitsPositions()
+    public virtual void UpdateUnitsPositions()
     {
         for (int line = 0; line < lines; line++)
         {

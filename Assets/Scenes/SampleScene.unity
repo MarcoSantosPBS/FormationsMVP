@@ -609,7 +609,7 @@ GameObject:
   - component: {fileID: 520528372}
   - component: {fileID: 520528371}
   m_Layer: 0
-  m_Name: Pivo
+  m_Name: DebugAlvo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -697,13 +697,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 520528370}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 23.4, y: 0.5, z: 33.4}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 20, y: 0.5, z: 29}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!1 &647379854
 GameObject:
   m_ObjectHideFlags: 0
@@ -720,7 +720,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &647379855
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -733,12 +733,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e92747567c32b14f80fe55e4e8d3bf9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  squad: {fileID: 0}
-  enemySquad: {fileID: 0}
-  pivo: {fileID: 520528370}
-  newLines: 5
-  newColumns: 5
-  updaetCom: 0
+  debugAlvo: {fileID: 520528374}
+  debugSource: {fileID: 1525542326}
+  debugNeighbor: {fileID: 1651244497}
+  debugVizinho2: {fileID: 0}
 --- !u!4 &647379856
 Transform:
   m_ObjectHideFlags: 0
@@ -1265,7 +1263,7 @@ GameObject:
   - component: {fileID: 1525542324}
   - component: {fileID: 1525542323}
   m_Layer: 0
-  m_Name: teste 1
+  m_Name: DebugSource
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1354,7 +1352,7 @@ Transform:
   m_GameObject: {fileID: 1525542322}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 12, y: 0.5, z: 10}
+  m_LocalPosition: {x: 17.2, y: 0.5, z: 24.41}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1373,7 +1371,7 @@ GameObject:
   - component: {fileID: 1651244495}
   - component: {fileID: 1651244494}
   m_Layer: 0
-  m_Name: teste 2
+  m_Name: DebugVizinho
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1461,13 +1459,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1651244493}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5, y: 0.5, z: 10}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 18.69, y: 0.5, z: 28.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!1 &2127095335
 GameObject:
   m_ObjectHideFlags: 0
@@ -1548,7 +1546,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: <Lines>k__BackingField
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: <Columns>k__BackingField
@@ -1620,7 +1618,6 @@ SceneRoots:
   - {fileID: 737480419}
   - {fileID: 2492338526677752706}
   - {fileID: 1039650242}
-  - {fileID: 520528374}
   - {fileID: 2127095336}
   - {fileID: 133273969}
   - {fileID: 647379856}
@@ -1628,3 +1625,4 @@ SceneRoots:
   - {fileID: 111880151}
   - {fileID: 1525542326}
   - {fileID: 1651244497}
+  - {fileID: 520528374}
