@@ -52,7 +52,16 @@ public class Unit : MonoBehaviour
         return new Rect(unitPos.x - neighborhoodRange, unitPos.z - neighborhoodRange, neighborhoodRange * 2f, neighborhoodRange * 2f);
     }
 
-    public bool TakeDamage(int damage) => health.TakeDamage(damage);
+    public bool TakeDamage(int damage, Unit attacker)
+    {
+        if (GetTargetUnit() == null)
+        {
+            SetTargetUnit(attacker);
+        }
+
+        return health.TakeDamage(damage);
+    }
+
     public Unit GetTargetUnit() => combatUnit.targetUnit;
     public void SetTargetUnit(Unit targetUnit) => combatUnit.SetTargetUnit(targetUnit);
 

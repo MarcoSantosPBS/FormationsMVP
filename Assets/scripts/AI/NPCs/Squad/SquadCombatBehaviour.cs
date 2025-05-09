@@ -34,6 +34,7 @@ public class SquadCombatBehaviour : SquadBehaviour
 
         foreach (Unit unit in units)
         {
+            if (unit.GetTargetUnit() != null) { continue; }
             if (unit.squadPosition.y != 0) { continue; }
 
             Unit closestEnemy = null;
@@ -41,9 +42,8 @@ public class SquadCombatBehaviour : SquadBehaviour
 
             foreach (Unit enemyUnit in mainOponent.Units)
             {
-                bool teste = IsBlockedByAnotherEnemy(unit, enemyUnit);
                 if (!enemyUnit.isAlive || !enemyUnit.isActiveAndEnabled) { continue; }
-                //if (IsBlockedByAnotherEnemy(unit, enemyUnit)) { continue; }
+                if (IsBlockedByCloserEnemy(unit, enemyUnit)) { continue; }
 
                 var dist = CalculateDistance(unit, enemyUnit);
 
@@ -106,6 +106,23 @@ public class SquadCombatBehaviour : SquadBehaviour
         return cost;
     }
 
+    private float CalculateDistance(int column, Vector3 enemyUnit)
+    {
+        Vector3 pivot = controller.GetCentroid();
+        Vector3 dirToEnemy = enemyUnit - pivot;
+        Vector3 forward = (mainOponent.GetCentroid() - controller.GetCentroid()).normalized;
+        Vector3 right = Vector3.Cross(Vector3.up, forward);
+
+        float localX = Vector3.Dot(dirToEnemy, right);
+        float localZ = Vector3.Dot(dirToEnemy, forward);
+
+        float expectedColumn = (column - (columns - 1) / 2.0f) * unitSpacing;
+        float lateralError = Mathf.Abs(localX - expectedColumn);
+        float cost = lateralError + Mathf.Abs(localZ);
+
+        return cost;
+    }
+
     public bool AreAllEnemiesBeingTargeted(List<Unit> closedList)
     {
         List<Unit> aliveEnemyUnits = mainOponent.Units.Where(x => x.isAlive).ToList();
@@ -123,7 +140,7 @@ public class SquadCombatBehaviour : SquadBehaviour
         {
             if (!enemyUnit.isAlive || !enemyUnit.isActiveAndEnabled) { continue; }
             if (closedList.Contains(enemyUnit) && !areAllEnemiesTargeted) { continue; }
-            //if (IsBlockedByAnotherEnemy(unit, enemyUnit, mainOponent.Units)) { continue; }
+            if (IsBlockedByCloserEnemy(unit, enemyUnit)) { continue; }
 
             var dist = CalculateDistance(unit, enemyUnit);
 
@@ -176,52 +193,65 @@ public class SquadCombatBehaviour : SquadBehaviour
 
     }
 
-    private bool IsBlockedByAnotherEnemy(Unit source, Unit target)
+    private bool IsBlockedByCloserEnemy(Unit source, Unit target)
     {
-        var neighbors = UnitCollider.Instance.GetUnitsCloseTo(target, false, true);
+        Vector3 sourcePos = source.transform.position;
+        Vector3 targetPos = target.transform.position;
+
         Vector3 dirToEnemy = (target.transform.position - source.transform.position).normalized;
         float side = Vector3.Dot(source.transform.right, dirToEnemy);
 
-        // está a direita?
-        if (side > 0)
-        {
-            return HasUnitAtSide(target.transform.right, target, neighbors);
-        }
-        else
-        {
-            return HasUnitAtSide(-target.transform.right, target, neighbors);
-        }
-    }
+        Vector3 directionToTarget = (targetPos - sourcePos).normalized;
+        float distanceToTarget = CalculateDistance(source.squadPosition.x, targetPos);
 
-    private bool HasUnitAtSide(Vector3 side, Unit target, List<Unit> neighbors)
-    {
-        Vector3 sidePosition = target.transform.position + side * target.Squad.UnitSpacing;
-
-        foreach (Unit neighbor in neighbors)
+        foreach (var other in mainOponent.Units)
         {
-            if (Vector3.Distance(sidePosition, neighbor.transform.position) < 0.5f) return true;
+            if (!other.isAlive || other == target) continue;
+
+            Vector3 otherPos = other.transform.position;
+            Vector3 directionToOther = (otherPos - sourcePos).normalized;
+            float distanceToOther = CalculateDistance(source.squadPosition.x, otherPos);
+
+            if (distanceToOther > distanceToTarget) continue;
+
+            float lateralOffset = Vector3.Cross(directionToOther, directionToTarget).y;
+
+            bool isBlockingPath = (side < 0 && lateralOffset < 0) || (side > 0 && lateralOffset > 0);
+
+            if (isBlockingPath)
+            {
+                return true;
+            }
         }
 
         return false;
+    }
+
+    private float GetRelativeX(Unit enemy)
+    {
+        Vector3 pivot = controller.GetCentroid();
+        Vector3 dirToEnemy = enemy.transform.position - pivot;
+        Vector3 forward = (mainOponent.GetCentroid() - controller.GetCentroid()).normalized;
+        Vector3 right = Vector3.Cross(Vector3.up, forward);
+
+        return Vector3.Dot(dirToEnemy, right);
+    }
+
+    private float GetRelativeZ(Unit enemy)
+    {
+        Vector3 pivot = controller.GetCentroid();
+        Vector3 dirToEnemy = enemy.transform.position - pivot;
+        Vector3 forward = (mainOponent.GetCentroid() - controller.GetCentroid()).normalized;
+
+        return Vector3.Dot(dirToEnemy, forward);
     }
 
     public void AllignFormationWithEnemy(SquadController attackingSquad, Transform pivo)
     {
         mainOponent = attackingSquad;
 
-
-        foreach (Unit enemy in mainOponent.Units)
-        {
-            Vector3 dirToEnemy = (enemy.transform.position - controller.GetCentroid()).normalized;
-            Vector3 forward = attackingSquad.GetCentroid() - controller.GetCentroid();
-            Vector3 right = Vector3.Cross(Vector3.up, forward);
-
-            float localX = Vector3.Dot(dirToEnemy, right);
-            float localZ = Vector3.Dot(dirToEnemy, forward);
-
-            enemy.name = $"({localX}, {localZ})";
-        }
         return;
+
         Vector3 enemySquadDirection = (attackingSquad.GetCentroid() - controller.GetCentroid()).normalized;
         Vector3 ortogonalVector = Vector3.Cross(Vector3.up, enemySquadDirection);
 
@@ -242,6 +272,45 @@ public class SquadCombatBehaviour : SquadBehaviour
                 unit.transform.rotation = Quaternion.LookRotation(enemySquadDirection);
             }
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (mainOponent == null) { return; }
+
+        Unit unidade1 = controller.Units[columns * 0 + 0];
+        Unit unidade2 = controller.Units[columns * 0 + 6];
+
+        Unit inimigo1 = mainOponent.Units[mainOponent.Columns * 1 + 1];
+        Unit inimigo2 = mainOponent.Units[mainOponent.Columns * 1 + 2];
+        Unit inimigo3 = mainOponent.Units[mainOponent.Columns * 1 + 0];
+
+        var dir1ToTarget = (inimigo1.transform.position - unidade1.transform.position).normalized;
+        var dir1ToOther = (inimigo2.transform.position - unidade1.transform.position).normalized;
+
+        var dir2ToTarget = (inimigo1.transform.position - unidade2.transform.position).normalized;
+        var dir2ToOther = (inimigo3.transform.position - unidade2.transform.position).normalized;
+
+        Vector3 sla = Vector3.Cross(dir1ToOther, dir1ToTarget);
+        Vector3 sla2 = Vector3.Cross(dir2ToOther, dir2ToTarget);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(unidade1.transform.position, unidade1.transform.position + sla * 20f);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(unidade1.transform.position, unidade1.transform.position + dir1ToTarget * 3f);
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(unidade1.transform.position, unidade1.transform.position + dir1ToOther * 3f);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(unidade2.transform.position, unidade2.transform.position + sla2 * 20f);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(unidade2.transform.position, unidade2.transform.position + dir2ToTarget * 3f);
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(unidade2.transform.position, unidade2.transform.position + dir2ToOther * 3f);
     }
 
     #region backup

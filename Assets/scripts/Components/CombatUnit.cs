@@ -19,7 +19,9 @@ public class CombatUnit : MonoBehaviour
             if (Vector3.Distance(transform.position, targetUnit.transform.position) > attackRange) 
             {
                 Vector3 direction = targetUnit.transform.position - transform.position;
-                //unit.Mover.MoveToPosition(transform.position + direction);
+                unit.Mover.MoveToPosition(transform.position + direction);
+                transform.forward = direction;
+                return;
             }
             else
             {
@@ -40,7 +42,7 @@ public class CombatUnit : MonoBehaviour
         if (lastAttackTime > attackInterval)
         {
             lastAttackTime = 0f;
-            return targetUnit.TakeDamage(damage);
+            return targetUnit.TakeDamage(damage, unit);
         }
 
         return false;
