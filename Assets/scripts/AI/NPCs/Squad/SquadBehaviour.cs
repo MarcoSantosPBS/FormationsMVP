@@ -49,6 +49,7 @@ public abstract class SquadBehaviour : MonoBehaviour
                 int index = line * columns + column;
                 if (index >= units.Count) return;
                 if (!units[index].isActiveAndEnabled) { continue; }
+                if (units[index].combatUnit.targetUnit != null) { continue; }
 
                 Vector3 offset = CalculateOffset(column, line);
                 Vector3 destination = controllerTransform.position + offset;

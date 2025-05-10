@@ -7,6 +7,7 @@ public class CombatUnit : MonoBehaviour
     [SerializeField] public Unit targetUnit;
     [SerializeField] private float attackRange = 1f;
     [SerializeField] private Unit unit;
+    [SerializeField] public bool isEngaged;
 
     private float lastAttackTime = -1;
 
@@ -16,7 +17,7 @@ public class CombatUnit : MonoBehaviour
 
         if (targetUnit != null)
         {
-            if (Vector3.Distance(transform.position, targetUnit.transform.position) > attackRange) 
+            if (!IsInRangeOfAttack())
             {
                 Vector3 direction = targetUnit.transform.position - transform.position;
                 unit.Mover.MoveToPosition(transform.position + direction);
@@ -26,6 +27,7 @@ public class CombatUnit : MonoBehaviour
             else
             {
                 unit.Mover.Stop();
+                isEngaged = true;
             }
 
             bool isEnemyDead = Attack();
@@ -35,6 +37,11 @@ public class CombatUnit : MonoBehaviour
                 targetUnit = null;   
             }
         }
+    }
+
+    private bool IsInRangeOfAttack()
+    {
+        return Vector3.Distance(transform.position, targetUnit.transform.position) < attackRange;
     }
 
     public bool Attack()

@@ -3,6 +3,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using static UnityEngine.UI.CanvasScaler;
 
 public class SquadCombatBehaviour : SquadBehaviour
 {
@@ -23,7 +24,13 @@ public class SquadCombatBehaviour : SquadBehaviour
     public override void Activate()
     {
         currentTargetPairs = new Dictionary<Unit, Unit>();
-        isActive = false;
+        isActive = true;
+    }
+
+    public override void Deactivate()
+    {
+        base.Deactivate();
+        GetFrontLineHalf();
     }
 
     public void Fight()
@@ -148,6 +155,55 @@ public class SquadCombatBehaviour : SquadBehaviour
             unit.SetTargetUnit(closestEnemy);
         }
 
+    }
+
+    public void GetFrontLineHalf()
+    {
+        List<Unit> linhaDeFrente = units
+            .Where(u => u.squadPosition.y == 0)
+            .OrderBy(u => u.squadPosition.x)
+            .ToList();
+
+        if (linhaDeFrente.Count > 0)
+        {
+            int meio = linhaDeFrente.Count / 2;
+            Unit unidadeCentral = linhaDeFrente[meio];
+
+            Vector3 pivotPosition = unidadeCentral.transform.position;
+            controller.transform.position = pivotPosition;
+        }
+    }
+
+    public override void UpdateUnitsPositions()
+    {
+        for (int line = 0; line < lines; line++)
+        {
+            for (int column = 0; column < columns; column++)
+            {
+                int index = line * columns + column;
+                if (index >= units.Count) return;
+                if (!units[index].isActiveAndEnabled) { continue; }
+
+                Unit unit = units[index];
+                if (unit.combatUnit.targetUnit != null) { continue; }
+
+                Unit inFront = GetUnitInFrontOf(unit);
+
+                if (inFront == null) continue;
+                Vector3 behindOffset = -inFront.transform.forward * controller.UnitSpacing;
+                Vector3 desiredPosition = inFront.transform.position + behindOffset;
+
+                unit.Mover.MoveToPosition(desiredPosition);
+                unit.transform.rotation = Quaternion.LookRotation(controllerTransform.forward);
+            }
+        }
+    }
+
+    private Unit GetUnitInFrontOf(Unit unit)
+    {
+        int line = unit.squadPosition.y;
+        int column = unit.squadPosition.x;
+        return units.FirstOrDefault(u => u.squadPosition.x == column && u.squadPosition.y == line - 1);
     }
 
     private float CalculateDistance(Unit alliedUnit, Unit enemyUnit)

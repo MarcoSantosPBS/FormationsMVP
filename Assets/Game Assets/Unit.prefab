@@ -540,11 +540,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56f0c2dabf621fa42a46e5185ddb55e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 0
+  damage: 1
   attackInterval: 1.5
   targetUnit: {fileID: 0}
   attackRange: 2
   unit: {fileID: 6235931275490182718}
+  isEngaged: 0
 --- !u!114 &-2373391959517814697
 MonoBehaviour:
   m_ObjectHideFlags: 0

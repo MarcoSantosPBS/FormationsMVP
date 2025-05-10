@@ -12,6 +12,7 @@ public class SquadController : MonoBehaviour
     public List<Unit> Units { get; private set; }
     public Transform Pivot { get; private set; }
     public bool goToCombateState;
+    public bool leaveCombatState;
 
     private bool isEngaged;
     private SquadCombatBehaviour combatBehaviour;
@@ -48,6 +49,14 @@ public class SquadController : MonoBehaviour
                 combatBehaviour.Activate();
             }
         }
+
+        if (leaveCombatState)
+        {
+            combatBehaviour.Deactivate();
+            idleBehaviour.Activate();
+            leaveCombatState = false;
+        }
+    
 
         //if (!hasCollided) Desengage();
     }
