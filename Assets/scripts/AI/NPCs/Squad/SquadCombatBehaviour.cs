@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
@@ -95,6 +96,16 @@ public class SquadCombatBehaviour : SquadBehaviour
         }
     }
 
+    private void SetPivotToFrontline()
+    {
+        Unit pivot = controller.GetFrontlinePivot();
+
+        if (pivot != null)
+        {
+            transform.position = pivot.transform.position;
+        }
+    }
+
     private void FindNewTarget(Unit unit, List<Unit> closedList)
     {
         Unit closestEnemy = null;
@@ -163,23 +174,6 @@ public class SquadCombatBehaviour : SquadBehaviour
             unit.SetTargetUnit(closestEnemy);
         }
 
-    }
-
-    public void SetPivotToFrontline()
-    {
-        List<Unit> linhaDeFrente = units
-            .Where(u => u.squadPosition.y == 0)
-            .OrderBy(u => u.squadPosition.x)
-            .ToList();
-
-        if (linhaDeFrente.Count > 0)
-        {
-            int meio = linhaDeFrente.Count / 2;
-            Unit unidadeCentral = linhaDeFrente[meio];
-
-            Vector3 pivotPosition = unidadeCentral.transform.position;
-            controller.transform.position = pivotPosition;
-        }
     }
 
     public override void UpdateUnitsPositions()

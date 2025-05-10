@@ -30,6 +30,8 @@ public class Unit : MonoBehaviour
     private void Update()
     {
         if (Squad == null) return;
+
+        AttackNearUnit();
         //transform.rotation = Quaternion.Lerp(transform.rotation, Squad.transform.rotation, Time.deltaTime * 5f);
     }
 
@@ -50,6 +52,17 @@ public class Unit : MonoBehaviour
     {
         Vector3 unitPos = transform.position;
         return new Rect(unitPos.x - neighborhoodRange, unitPos.z - neighborhoodRange, neighborhoodRange * 2f, neighborhoodRange * 2f);
+    }
+
+    public void AttackNearUnit()
+    {
+        if (combatUnit.targetUnit != null) { return; }
+
+        var nearbUnits = UnitCollider.Instance.GetUnitsCloseTo(this, true, false);
+
+        if (nearbUnits.Count == 0) { return; }
+
+        SetTargetUnit(nearbUnits[0]);
     }
 
     public bool TakeDamage(int damage, Unit attacker)

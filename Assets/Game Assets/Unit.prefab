@@ -510,7 +510,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   radius: 1
   mass: 1
-  neighborhoodRange: 2
+  neighborhoodRange: 1.3
   health: {fileID: -2373391959517814697}
   combatUnit: {fileID: 3614991884403593872}
   isAlive: 0

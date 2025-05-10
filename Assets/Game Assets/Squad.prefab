@@ -48,6 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitPrefab: {fileID: 7564461215700530424, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
   type: 0
+  <KeepFormationInCombat>k__BackingField: 0
   <UnitSpacing>k__BackingField: 1.5
   <Columns>k__BackingField: 3
   <Lines>k__BackingField: 3

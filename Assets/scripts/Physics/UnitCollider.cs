@@ -36,7 +36,7 @@ public class UnitCollider : MonoBehaviour
 
         foreach (var squad in squads)
         {
-            Rect squadAABB = GetSquadAABB(squad);
+            Rect squadAABB = squad.GetSquadAABB();
             quadtreeSquad.Insert(squadAABB, squad);
         }
     }
@@ -91,7 +91,7 @@ public class UnitCollider : MonoBehaviour
 
     public List<SquadController> CheckSquadCollision(SquadController squadController, bool ignoreAlliedCollision)
     {
-        Rect searchArea = GetSquadAABB(squadController);
+        Rect searchArea = squadController.GetSquadAABB();
         var neighbors = quadtreeSquad.Search(searchArea);
         List<SquadController> squadsInRange = new List<SquadController>();
 
@@ -127,35 +127,6 @@ public class UnitCollider : MonoBehaviour
         return new Rect(unitPos.x - unit.radius, unitPos.z - unit.radius, unit.radius * 2f, unit.radius * 2f);
     }
 
-    private Rect GetSquadAABB(SquadController squad)
-    {
-        float width = squad.Columns * squad.UnitSpacing;
-        float depth = squad.Lines * squad.UnitSpacing;
-
-        Vector3 halfWidth = 0.5f * squad.Columns * squad.UnitSpacing * squad.transform.right;
-        Vector3 halfDepth = 0.5f * squad.Lines * squad.UnitSpacing * -squad.transform.forward;
-
-        Vector3 corner0 = squad.transform.position - halfWidth - halfDepth * 2;
-        Vector3 corner1 = squad.transform.position + halfWidth - halfDepth * 2;
-        Vector3 corner2 = squad.transform.position - halfWidth * 2f + halfDepth * 3f;
-        Vector3 corner3 = squad.transform.position + halfWidth * 2f + halfDepth * 3f;
-
-        Vector2[] points = new Vector2[4];
-        points[0] = new Vector2(corner0.x, corner0.z);
-        points[1] = new Vector2(corner1.x, corner1.z);
-        points[2] = new Vector2(corner2.x, corner2.z);
-        points[3] = new Vector2(corner3.x, corner3.z);
-
-        float minX = points.Min(p => p.x);
-        float maxX = points.Max(p => p.x);
-        float minY = points.Min(p => p.y);
-        float maxY = points.Max(p => p.y);
-
-        Rect quadRect = new Rect(minX, minY, maxX - minX, maxY - minY);
-
-        return quadRect;
-    }
-
     private void OnDrawGizmos()
     {
         //Unit[] units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
@@ -179,8 +150,9 @@ public class UnitCollider : MonoBehaviour
     private void DrawSquadGizmo(SquadController squad)
     {
         if (squad == null) return;
+        if (squad.Units == null) return;
 
-        Rect aabb = GetSquadAABB(squad);
+        Rect aabb = squad.GetSquadAABB();
 
         Vector3 r0 = new Vector3(aabb.xMin, squad.transform.position.y + 0.1f, aabb.yMin);
         Vector3 r1 = new Vector3(aabb.xMax, squad.transform.position.y + 0.1f, aabb.yMin);

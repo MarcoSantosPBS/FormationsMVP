@@ -1,72 +1,68 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 
 public class SquadController : MonoBehaviour
 {
     [SerializeField] GameObject unitPrefab;
     [SerializeField] public SquadFriendlyType type;
+
     [field: SerializeField] public bool KeepFormationInCombat { get; private set; }
     [field: SerializeField] public float UnitSpacing { get; private set; }
     [field: SerializeField] public int Columns { get; private set; }
     [field: SerializeField] public int Lines { get; private set; }
+
     public List<Unit> Units { get; private set; }
     public Transform Pivot { get; private set; }
-    public bool goToCombateState;
-    public bool leaveCombatState;
 
-    private bool isEngaged;
-    private SquadCombatBehaviour combatBehaviour;
-    private SquadIdleBehaviour idleBehaviour;
+    private bool _isEngaged;
+    private SquadCombatBehaviour _combatBehaviour;
+    private SquadIdleBehaviour _idleBehaviour;
 
     private void Awake()
     {
         Units = new List<Unit>();
         Pivot = transform;
-        combatBehaviour = GetComponent<SquadCombatBehaviour>();
-        idleBehaviour = GetComponent<SquadIdleBehaviour>();
+        _combatBehaviour = GetComponent<SquadCombatBehaviour>();
+        _idleBehaviour = GetComponent<SquadIdleBehaviour>();
     }
 
     private void Start()
     {
         UnitCollider.Instance.squads.Add(this);
         GenerateUnits();
-        isEngaged = false;
-        goToCombateState = false;
-        idleBehaviour.Activate();
+        _isEngaged = false;
+        _idleBehaviour.Activate();
     }
 
     private void Update()
     {
         var squadsInRange = UnitCollider.Instance.CheckSquadCollision(this, true);
 
-        if (squadsInRange.Count > 0 && !isEngaged)
+        if (Input.GetMouseButtonDown(1) && type == SquadFriendlyType.Allied)
         {
-            idleBehaviour.Deactivate();
-            combatBehaviour.AllignFormationWithEnemy(squadsInRange[0], transform);
-            combatBehaviour.Activate();
-            isEngaged = true;
+            Vector3 destination = MouseWorld.Instance.GetMousePosition();
+            Vector3 destDirection = (destination - transform.position).normalized;
+            transform.position = destination;
+            transform.rotation = Quaternion.LookRotation(destDirection);
         }
 
-        if (squadsInRange.Count == 0 && isEngaged)
+        if (squadsInRange.Count > 0 && !_isEngaged)
         {
-            combatBehaviour.Deactivate();
-            idleBehaviour.Activate();
-            isEngaged = false;
+            _idleBehaviour.Deactivate();
+            _combatBehaviour.AllignFormationWithEnemy(squadsInRange[0], transform);
+            _combatBehaviour.Activate();
+            _isEngaged = true;
         }
 
-        //if (!hasCollided) Desengage();
-    }
-
-    private void HandleCollision(Unit enemyUnit, Unit alliedUnit)
-    {
-        if (isEngaged) { return; }
-
-        idleBehaviour.Deactivate();
-        combatBehaviour.Activate();
-        combatBehaviour.AllignFormationWithEnemy(enemyUnit.Squad, alliedUnit.transform);
-
-        isEngaged = true;
+        if (squadsInRange.Count == 0 && _isEngaged)
+        {
+            _combatBehaviour.Deactivate();
+            _idleBehaviour.Activate();
+            _isEngaged = false;
+        }
     }
 
     public Vector3 GetCentroid()
@@ -83,19 +79,20 @@ public class SquadController : MonoBehaviour
         return sum / Units.Count;
     }
 
-    public void Desengage()
+    public Unit GetFrontlinePivot()
     {
-        if (!isEngaged) return;
+        List<Unit> frontLine = Units
+            .Where(u => u.squadPosition.y == 0)
+            .OrderBy(u => u.squadPosition.x)
+            .ToList();
 
-        foreach (Unit unit in Units)
+        if (frontLine.Count > 0)
         {
-            unit.SetTargetUnit(null);
+            int middle = frontLine.Count / 2;
+            return frontLine[middle];
         }
 
-        isEngaged = false;
-        combatBehaviour.Deactivate();
-        idleBehaviour.Activate();
-        Debug.Log("Desengajou");
+        return null;
     }
 
     public void GenerateUnits()
@@ -203,6 +200,40 @@ public class SquadController : MonoBehaviour
         RecalculateFormation(unit);
     }
 
+    public Rect GetSquadAABB()
+    {
+        Unit frontLinePivot = GetFrontlinePivot();
+        if (frontLinePivot == null) { return new Rect(); }
+
+        Transform frontLinePivotPosition = frontLinePivot.transform;
+
+        float width = Columns * UnitSpacing;
+        float depth = Lines * UnitSpacing;
+
+        Vector3 halfWidth = 0.5f * Columns * UnitSpacing * frontLinePivotPosition.right;
+        Vector3 halfDepth = 0.5f * Lines * UnitSpacing * -frontLinePivotPosition.forward;
+
+        Vector3 corner0 = frontLinePivotPosition.position - halfWidth - halfDepth * 2;
+        Vector3 corner1 = frontLinePivotPosition.position + halfWidth - halfDepth * 2;
+        Vector3 corner2 = frontLinePivotPosition.position - halfWidth * 2f + halfDepth * 3f;
+        Vector3 corner3 = frontLinePivotPosition.position + halfWidth * 2f + halfDepth * 3f;
+
+        Vector2[] points = new Vector2[4];
+        points[0] = new Vector2(corner0.x, corner0.z);
+        points[1] = new Vector2(corner1.x, corner1.z);
+        points[2] = new Vector2(corner2.x, corner2.z);
+        points[3] = new Vector2(corner3.x, corner3.z);
+
+        float minX = points.Min(p => p.x);
+        float maxX = points.Max(p => p.x);
+        float minY = points.Min(p => p.y);
+        float maxY = points.Max(p => p.y);
+
+        Rect quadRect = new Rect(minX, minY, maxX - minX, maxY - minY);
+
+        return quadRect;
+    }
+
 #if UNITY_EDITOR
     void OnApplicationQuit()
     {
@@ -213,6 +244,8 @@ public class SquadController : MonoBehaviour
                 DestroyImmediate(unit.gameObject);
             }
         }
+
+        DestroyImmediate(gameObject);
     }
 #endif
 
@@ -245,6 +278,21 @@ public class SquadController : MonoBehaviour
     //    combatBehaviour.Deactivate();
     //    idleBehaviour.Activate();
     //    leaveCombatState = false;
+    //}
+
+    //public void Desengage()
+    //{
+    //    if (!_isEngaged) return;
+
+    //    foreach (Unit unit in Units)
+    //    {
+    //        unit.SetTargetUnit(null);
+    //    }
+
+    //    _isEngaged = false;
+    //    _combatBehaviour.Deactivate();
+    //    _idleBehaviour.Activate();
+    //    Debug.Log("Desengajou");
     //}
 
     #endregion
