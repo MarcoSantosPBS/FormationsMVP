@@ -1,4 +1,5 @@
 using System;
+using UnityEditor.Animations;
 using UnityEngine;
 
 public class Unit : MonoBehaviour
@@ -8,6 +9,7 @@ public class Unit : MonoBehaviour
     [SerializeField] public float neighborhoodRange;
     [SerializeField] private Health health;
     [SerializeField] public CombatUnit combatUnit;
+    [SerializeField] private Animator animator;
 
     public bool isAlive;
     public Vector2Int squadPosition;
@@ -33,6 +35,11 @@ public class Unit : MonoBehaviour
 
         AttackNearUnit();
         //transform.rotation = Quaternion.Lerp(transform.rotation, Squad.transform.rotation, Time.deltaTime * 5f);
+
+        if (animator == null) { return; }
+
+        //passar isso aqui para a classe mover
+        animator.SetBool("isWalking", Mover.IsMoving());
     }
 
     private void health_OnDeath()
@@ -46,6 +53,12 @@ public class Unit : MonoBehaviour
     public void ApplyPush(Vector3 displacement)
     {
         transform.position += displacement;
+    }
+
+    public void AttackAnimation()
+    {
+        if (animator == null) { return; }
+        animator.SetTrigger("attack");
     }
 
     public Rect GetNeighborhoodRange()

@@ -49,6 +49,7 @@ public class CombatUnit : MonoBehaviour
         if (lastAttackTime > attackInterval)
         {
             lastAttackTime = 0f;
+            unit.AttackAnimation();
             return targetUnit.TakeDamage(damage, unit);
         }
 

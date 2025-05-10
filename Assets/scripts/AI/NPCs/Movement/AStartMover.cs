@@ -51,4 +51,9 @@ public class AStartMover : MonoBehaviour, IUnitMover
     {
         throw new System.NotImplementedException();
     }
+
+    public bool IsMoving()
+    {
+        throw new System.NotImplementedException();
+    }
 }

@@ -27,4 +27,6 @@ public class NavMeshMover : MonoBehaviour, IUnitMover
     {
         agent.ResetPath();
     }
+
+    public bool IsMoving() => agent.hasPath;
 }

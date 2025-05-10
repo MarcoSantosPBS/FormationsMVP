@@ -17,7 +17,7 @@ public class Health : MonoBehaviour
 
     private void Update()
     {
-        healthBar.transform.localScale = new Vector3(GetHealthPercentage(), 1, 1); 
+        //healthBar.transform.localScale = new Vector3(GetHealthPercentage(), 1, 1); 
     }
 
     public bool TakeDamage(int damage)
