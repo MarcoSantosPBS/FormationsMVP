@@ -158,17 +158,17 @@ public class UnitCollider : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Unit[] units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
+        //Unit[] units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
         SquadController[] squads = FindObjectsByType<SquadController>(FindObjectsSortMode.None);
 
         Gizmos.color = Color.yellow;
 
-        foreach (var unit in units)
-        {
-            Rect aabb = GetUnitAABB(unit);
-            DrawRectGizmo(aabb);
-            DrawRectGizmo(unit.GetNeighborhoodRange());
-        }
+        //foreach (var unit in units)
+        //{
+        //    Rect aabb = GetUnitAABB(unit);
+        //    DrawRectGizmo(aabb);
+        //    DrawRectGizmo(unit.GetNeighborhoodRange());
+        //}
 
         foreach (var squad in squads)
         {

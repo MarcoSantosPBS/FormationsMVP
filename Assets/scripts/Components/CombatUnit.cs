@@ -17,7 +17,7 @@ public class CombatUnit : MonoBehaviour
 
         if (targetUnit != null)
         {
-            if (!IsInRangeOfAttack())
+            if (!IsInRangeOfAttack() && !unit.Squad.KeepFormationInCombat)
             {
                 Vector3 direction = targetUnit.transform.position - transform.position;
                 unit.Mover.MoveToPosition(transform.position + direction);

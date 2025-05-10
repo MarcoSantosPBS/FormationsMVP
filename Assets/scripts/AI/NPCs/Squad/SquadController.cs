@@ -6,6 +6,7 @@ public class SquadController : MonoBehaviour
 {
     [SerializeField] GameObject unitPrefab;
     [SerializeField] public SquadFriendlyType type;
+    [field: SerializeField] public bool KeepFormationInCombat { get; private set; }
     [field: SerializeField] public float UnitSpacing { get; private set; }
     [field: SerializeField] public int Columns { get; private set; }
     [field: SerializeField] public int Lines { get; private set; }
@@ -38,25 +39,21 @@ public class SquadController : MonoBehaviour
     private void Update()
     {
         var squadsInRange = UnitCollider.Instance.CheckSquadCollision(this, true);
-        bool hasCollided = UnitCollider.Instance.CheckCollision(Units, HandleCollision, true);
 
-        if (goToCombateState)
+        if (squadsInRange.Count > 0 && !isEngaged)
         {
-            if (squadsInRange.Count > 0 && !isEngaged) 
-            {
-                idleBehaviour.Deactivate();
-                combatBehaviour.AllignFormationWithEnemy(squadsInRange[0], transform);
-                combatBehaviour.Activate();
-            }
+            idleBehaviour.Deactivate();
+            combatBehaviour.AllignFormationWithEnemy(squadsInRange[0], transform);
+            combatBehaviour.Activate();
+            isEngaged = true;
         }
 
-        if (leaveCombatState)
+        if (squadsInRange.Count == 0 && isEngaged)
         {
             combatBehaviour.Deactivate();
             idleBehaviour.Activate();
-            leaveCombatState = false;
+            isEngaged = false;
         }
-    
 
         //if (!hasCollided) Desengage();
     }
@@ -80,7 +77,7 @@ public class SquadController : MonoBehaviour
 
         foreach (Unit unit in Units)
         {
-            sum += unit.transform.position;    
+            sum += unit.transform.position;
         }
 
         return sum / Units.Count;
@@ -206,6 +203,19 @@ public class SquadController : MonoBehaviour
         RecalculateFormation(unit);
     }
 
+#if UNITY_EDITOR
+    void OnApplicationQuit()
+    {
+        foreach (var unit in Units)
+        {
+            if (unit != null)
+            {
+                DestroyImmediate(unit.gameObject);
+            }
+        }
+    }
+#endif
+
     #region backup
 
     //columns = Mathf.CeilToInt(Mathf.Sqrt(numberOfUnits));
@@ -216,6 +226,25 @@ public class SquadController : MonoBehaviour
     //    Vector3 direction = enemySquad.transform.position - transform.position;
     //    Quaternion rotation = Quaternion.LookRotation(direction);
     //    transform.rotation = rotation;
+    //}
+
+    //bool hasCollided = UnitCollider.Instance.CheckCollision(Units, HandleCollision, true);
+
+    //if (goToCombateState)
+    //{
+    //    if (squadsInRange.Count > 0 && !isEngaged) 
+    //    {
+    //        idleBehaviour.Deactivate();
+    //        combatBehaviour.AllignFormationWithEnemy(squadsInRange[0], transform);
+    //        combatBehaviour.Activate();
+    //    }
+    //}
+
+    //if (leaveCombatState)
+    //{
+    //    combatBehaviour.Deactivate();
+    //    idleBehaviour.Activate();
+    //    leaveCombatState = false;
     //}
 
     #endregion

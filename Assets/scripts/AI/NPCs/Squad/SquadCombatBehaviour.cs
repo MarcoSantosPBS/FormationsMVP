@@ -30,12 +30,13 @@ public class SquadCombatBehaviour : SquadBehaviour
     public override void Deactivate()
     {
         base.Deactivate();
-        GetFrontLineHalf();
+        SetPivotToFrontline();
     }
 
     public void Fight()
     {
         if (mainOponent == null) { return; }
+        SetPivotToFrontline();
 
         foreach (Unit unit in units)
         {
@@ -126,6 +127,13 @@ public class SquadCombatBehaviour : SquadBehaviour
         {
             if (currentTargetPairs.TryGetValue(closestEnemy, out Unit allied))
             {
+                if (!allied.isAlive)
+                {
+                    currentTargetPairs[closestEnemy] = unit;
+                    unit.SetTargetUnit(closestEnemy);
+                    return;
+                }
+
                 if (areAllEnemiesTargeted)
                 {
                     unit.SetTargetUnit(closestEnemy);
@@ -157,7 +165,7 @@ public class SquadCombatBehaviour : SquadBehaviour
 
     }
 
-    public void GetFrontLineHalf()
+    public void SetPivotToFrontline()
     {
         List<Unit> linhaDeFrente = units
             .Where(u => u.squadPosition.y == 0)
