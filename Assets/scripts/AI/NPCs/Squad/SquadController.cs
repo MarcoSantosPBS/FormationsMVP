@@ -16,6 +16,7 @@ public class SquadController : MonoBehaviour
 
     public List<Unit> Units { get; private set; }
     public Transform Pivot { get; private set; }
+    public Unit[,] UnitsGrid { get; private set; }
 
     private bool _isEngaged;
     private SquadCombatBehaviour _combatBehaviour;
@@ -24,7 +25,7 @@ public class SquadController : MonoBehaviour
     private void Awake()
     {
         Units = new List<Unit>();
-        Pivot = transform;
+        UnitsGrid = new Unit[Columns, Lines];
         _combatBehaviour = GetComponent<SquadCombatBehaviour>();
         _idleBehaviour = GetComponent<SquadIdleBehaviour>();
     }
@@ -40,19 +41,20 @@ public class SquadController : MonoBehaviour
     private void Update()
     {
         var squadsInRange = UnitCollider.Instance.CheckSquadCollision(this, true);
+        
 
         if (Input.GetMouseButtonDown(1) && type == SquadFriendlyType.Allied)
         {
             Vector3 destination = MouseWorld.Instance.GetMousePosition();
             Vector3 destDirection = (destination - transform.position).normalized;
-            transform.position = destination;
             transform.rotation = Quaternion.LookRotation(destDirection);
+            transform.position = destination;
+            UpdatePosition();
         }
 
         if (squadsInRange.Count > 0 && !_isEngaged)
         {
             _idleBehaviour.Deactivate();
-            _combatBehaviour.AllignFormationWithEnemy(squadsInRange[0], transform);
             _combatBehaviour.Activate();
             _isEngaged = true;
         }
@@ -65,147 +67,125 @@ public class SquadController : MonoBehaviour
         }
     }
 
-    public Vector3 GetCentroid()
+    private void GenerateUnits()
     {
-        if (Units == null) return Vector3.zero;
-
-        Vector3 sum = Vector3.zero;
-
-        foreach (Unit unit in Units)
-        {
-            sum += unit.transform.position;
-        }
-
-        return sum / Units.Count;
-    }
-
-    public Unit GetFrontlinePivot()
-    {
-        List<Unit> frontLine = Units
-            .Where(u => u.squadPosition.y == 0)
-            .OrderBy(u => u.squadPosition.x)
-            .ToList();
-
-        if (frontLine.Count > 0)
-        {
-            int middle = frontLine.Count / 2;
-            return frontLine[middle];
-        }
-
-        return null;
-    }
-
-    public void GenerateUnits()
-    {
-        Units.Clear();
-
         for (int line = 0; line < Lines; line++)
         {
             for (int column = 0; column < Columns; column++)
             {
-                Vector3 offset = CalculateOffset(column, line);
-                Vector3 startPosition = Pivot.position + offset;
+                Vector3 startPosition = GridPositionToWorld(column, line);
 
                 var unitGO = Instantiate(unitPrefab, startPosition, Quaternion.identity);
+
                 Unit unit = unitGO.GetComponent<Unit>();
                 unit.Squad = this;
                 unit.squadPosition = new Vector2Int(column, line);
-
-                if (type == SquadFriendlyType.Enemy)
-                {
-                    unit.name = $"Inimigo {line * Columns + column}";
-                }
-                else
-                {
-                    unit.name = $"({column},{line})";
-                }
                 Units.Add(unit);
+
+                unit.name = $"({column}, {line})";
+
+                UnitsGrid[column, line] = unit;
             }
         }
     }
 
-    public Vector3 CalculateOffset(int column, int line)
+    protected void UpdatePosition()
     {
-        Vector3 offset = -line * UnitSpacing * transform.forward +
-                        (column - Columns / 2) * UnitSpacing * transform.right;
+        int totalUnits = Units.Count; // sua lista de unidades
+        int totalSlots = Lines * Columns;
 
-        return offset;
+        if (totalUnits != totalSlots)
+        {
+            Debug.LogError("Número de unidades não bate com o número de posições na formação.");
+            return;
+        }
+
+        // Etapa 1: gerar lista de posições do grid
+        List<Vector3> formationPositions = new List<Vector3>();
+        for (int line = 0; line < Lines; line++)
+        {
+            for (int column = 0; column < Columns; column++)
+            {
+                formationPositions.Add(GridPositionToWorld(column, line));
+            }
+        }
+
+        // Etapa 2: criar matriz de custo [unidade i] x [posição j]
+        int N = totalUnits;
+        double[,] costMatrix = new double[N, N];
+        for (int i = 0; i < N; i++)
+        {
+            for (int j = 0; j < N; j++)
+            {
+                costMatrix[i, j] = Vector3.SqrMagnitude(Units[i].transform.position - formationPositions[j]);
+            }
+        }
+
+        AuctionAlgorithm solver = new AuctionAlgorithm(costMatrix);
+        int[] assignment = solver.Solve();
+
+        // Etapa 4: mover unidades para as posições designadas
+        for (int i = 0; i < N; i++)
+        {
+            Vector3 destination = formationPositions[assignment[i]];
+            Units[i].Mover.MoveToPosition(destination);
+        }
     }
 
-    public bool RecalculateFormation(Unit deadUnit)
+    private void GreedAssigment()
     {
-        Unit closestUnit = null;
-        float currentDistance = 0;
-        float Wx = 2;
-        float Wy = 1;
+        List<Vector2Int> formationSlots = CreateFormationSlotsList();
+        List<Unit> closedList = new List<Unit>();
+
+        foreach (Vector2Int slot in formationSlots)
+        {
+            Unit closestUnit = null;
+            float minDist = float.MaxValue;
+
+            foreach (Unit unit in Units)
+            {
+                if (closedList.Contains(unit)) { continue; }
+
+                Vector3 slotWorldPosition = GridPositionToWorld(slot.x, slot.y);
+                float dist = Vector3.SqrMagnitude(unit.transform.position - slotWorldPosition);
+
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    closestUnit = unit;
+                }
+            }
+
+            UnitsGrid[slot.x, slot.y] = closestUnit;
+            closedList.Add(closestUnit);
+        }
+    }
+
+    private List<Vector2Int> CreateFormationSlotsList()
+    {
+        List<Vector2Int> formationSlots = new List<Vector2Int>();
 
         for (int line = 0; line < Lines; line++)
         {
             for (int column = 0; column < Columns; column++)
             {
-                int index = line * Columns + column;
-                if (index >= Units.Count) continue;
-
-                Unit unit = Units[line * Columns + column];
-
-                if (unit == deadUnit) { continue; }
-                if (!unit.isAlive) { continue; }
-
-                Vector2Int unitPosition = unit.squadPosition;
-                Vector2Int deadUnitPosition = deadUnit.squadPosition;
-                int penaltyY = (unitPosition.y <= deadUnitPosition.y) ? 5 : 0;
-                int penaltyX = (unitPosition.x > deadUnitPosition.x) ? 2 : 0;
-
-                float distance = Wx * Mathf.Abs(unitPosition.x - deadUnitPosition.x) + Wy * Mathf.Abs(unitPosition.y - deadUnitPosition.y);
-                float heuristc = distance + penaltyX + penaltyY;
-
-                if (closestUnit == null || heuristc < currentDistance)
-                {
-                    closestUnit = unit;
-                    currentDistance = heuristc;
-                }
+                formationSlots.Add(new Vector2Int(column, line));
             }
         }
 
-        if (closestUnit == null)
-        {
-            return false;
-        }
-
-        if (closestUnit.squadPosition.y == deadUnit.squadPosition.y || closestUnit.squadPosition.y < deadUnit.squadPosition.y)
-        {
-            return true;
-        }
-
-        Vector2Int oldPos = closestUnit.squadPosition;
-
-        Units[GetUnitIndex(deadUnit)] = closestUnit;
-        Units[GetUnitIndex(closestUnit)] = deadUnit;
-
-        closestUnit.squadPosition = deadUnit.squadPosition;
-        deadUnit.squadPosition = oldPos;
-
-        return RecalculateFormation(deadUnit);
+        return formationSlots;
     }
 
-    public int GetUnitIndex(Unit unit)
+    private Vector3 GridPositionToWorld(int column, int line)
     {
-        Vector2Int position = unit.squadPosition;
-
-        return position.y * Columns + position.x;
-    }
-
-    public void RemoveUnit(Unit unit)
-    {
-        RecalculateFormation(unit);
+        float x = (column - Columns / 2) * UnitSpacing;
+        float z = (line - Lines / 2) * UnitSpacing;
+        return transform.position + transform.rotation * new Vector3(x, 0, z);
     }
 
     public Rect GetSquadAABB()
     {
-        Unit frontLinePivot = GetFrontlinePivot();
-        if (frontLinePivot == null) { return new Rect(); }
-
-        Transform frontLinePivotPosition = frontLinePivot.transform;
+        Transform frontLinePivotPosition = transform;
 
         float width = Columns * UnitSpacing;
         float depth = Lines * UnitSpacing;
@@ -250,6 +230,50 @@ public class SquadController : MonoBehaviour
 #endif
 
     #region backup
+
+    //protected void UpdatePosition()
+    //{
+    //    GreedAssigment();
+
+    //    for (int line = 0; line < Lines; line++)
+    //    {
+    //        for (int column = 0; column < Columns; column++)
+    //        {
+    //            Vector3 destination = GridPositionToWorld(column, line);
+    //            Unit unit = UnitsGrid[column, line];
+    //            unit.Mover.MoveToPosition(destination);
+    //        }
+    //    }
+    //}
+
+    //private void GreedAssigment()
+    //{
+    //    List<Vector2Int> formationSlots = CreateFormationSlotsList();
+    //    List<Unit> closedList = new List<Unit>();
+
+    //    foreach (Vector2Int slot in formationSlots)
+    //    {
+    //        Unit closestUnit = null;
+    //        float minDist = float.MaxValue;
+
+    //        foreach (Unit unit in Units)
+    //        {
+    //            if (closedList.Contains(unit)) { continue; }
+
+    //            Vector3 slotWorldPosition = GridPositionToWorld(slot.x, slot.y);
+    //            float dist = Vector3.SqrMagnitude(unit.transform.position - slotWorldPosition);
+
+    //            if (dist < minDist)
+    //            {
+    //                minDist = dist;
+    //                closestUnit = unit;
+    //            }
+    //        }
+
+    //        UnitsGrid[slot.x, slot.y] = closestUnit;
+    //        closedList.Add(closestUnit);
+    //    }
+    //}
 
     //columns = Mathf.CeilToInt(Mathf.Sqrt(numberOfUnits));
     //lines = Mathf.CeilToInt((float)numberOfUnits / columns);

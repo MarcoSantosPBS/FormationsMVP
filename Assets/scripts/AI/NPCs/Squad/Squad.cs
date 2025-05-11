@@ -10,5 +10,4 @@ public class Squad : MonoBehaviour
 
     public int GetCollumns() => controller.Columns;
     public int GetLines() => controller.Lines;
-    public void RemoveUnit(Unit unit) => controller.RemoveUnit(unit);
 }

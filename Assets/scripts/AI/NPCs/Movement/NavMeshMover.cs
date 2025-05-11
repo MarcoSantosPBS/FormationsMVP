@@ -7,7 +7,7 @@ public class NavMeshMover : MonoBehaviour, IUnitMover
 
     private void Start()
     {
-        agent.updateRotation = false;
+        //agent.updateRotation = false;
     }
 
     private void Update()

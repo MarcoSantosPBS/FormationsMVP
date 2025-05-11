@@ -26,7 +26,7 @@ public abstract class SquadBehaviour : MonoBehaviour
     {
         if (isActive)
         {
-            UpdateUnitsPositions();
+           
         }
     }
 
@@ -40,26 +40,4 @@ public abstract class SquadBehaviour : MonoBehaviour
         isActive = false;
     }
 
-    public virtual void UpdateUnitsPositions()
-    {
-        for (int line = 0; line < lines; line++)
-        {
-            for (int column = 0; column < columns; column++)
-            {
-                int index = line * columns + column;
-                if (index >= units.Count) return;
-                if (!units[index].isActiveAndEnabled) { continue; }
-                if (units[index].combatUnit.targetUnit != null) { continue; }
-
-                Vector3 offset = CalculateOffset(column, line);
-                Vector3 destination = controllerTransform.position + offset;
-
-                Unit unit = units[index];
-                unit.Mover.MoveToPosition(destination);
-                unit.transform.rotation = Quaternion.LookRotation(controllerTransform.forward);
-            }
-        }
-    }
-
-    protected Vector3 CalculateOffset(int column, int line) => controller.CalculateOffset(column, line);
 }

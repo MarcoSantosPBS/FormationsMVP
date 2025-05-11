@@ -47,7 +47,7 @@ public class Unit : MonoBehaviour
         UnitCollider.Instance.units.Remove(this);
         isAlive = false;
         gameObject.SetActive(false);
-        Squad.RemoveUnit(this);
+        //Squad.RemoveUnit(this);
     }
 
     public void ApplyPush(Vector3 displacement)
