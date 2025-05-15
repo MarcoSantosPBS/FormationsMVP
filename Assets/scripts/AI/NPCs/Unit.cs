@@ -33,7 +33,7 @@ public class Unit : MonoBehaviour
     {
         if (Squad == null) return;
 
-        AttackNearUnit();
+        //AttackNearUnit();
         //transform.rotation = Quaternion.Lerp(transform.rotation, Squad.transform.rotation, Time.deltaTime * 5f);
 
         if (animator == null) { return; }
@@ -47,7 +47,7 @@ public class Unit : MonoBehaviour
         UnitCollider.Instance.units.Remove(this);
         isAlive = false;
         gameObject.SetActive(false);
-        //Squad.RemoveUnit(this);
+        Squad.ReplaceDeadUnit(this);
     }
 
     public void ApplyPush(Vector3 displacement)
@@ -80,7 +80,7 @@ public class Unit : MonoBehaviour
 
     public bool TakeDamage(int damage, Unit attacker)
     {
-        if (GetTargetUnit() == null)
+        if (GetTargetUnit() == null && attacker != null)
         {
             SetTargetUnit(attacker);
         }

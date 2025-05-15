@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
+using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
+using UnityEngine.UIElements;
 
 public class SquadController : MonoBehaviour
 {
@@ -21,11 +24,13 @@ public class SquadController : MonoBehaviour
     private bool _isEngaged;
     private SquadCombatBehaviour _combatBehaviour;
     private SquadIdleBehaviour _idleBehaviour;
+    private Dictionary<Vector2Int, Unit> _positionsInGrid;
 
     private void Awake()
     {
         Units = new List<Unit>();
         UnitsGrid = new Unit[Columns, Lines];
+        _positionsInGrid = new Dictionary<Vector2Int, Unit>();
         _combatBehaviour = GetComponent<SquadCombatBehaviour>();
         _idleBehaviour = GetComponent<SquadIdleBehaviour>();
     }
@@ -41,7 +46,7 @@ public class SquadController : MonoBehaviour
     private void Update()
     {
         var squadsInRange = UnitCollider.Instance.CheckSquadCollision(this, true);
-        
+        MoveInFormation();
 
         if (Input.GetMouseButtonDown(1) && type == SquadFriendlyType.Allied)
         {
@@ -74,13 +79,15 @@ public class SquadController : MonoBehaviour
             for (int column = 0; column < Columns; column++)
             {
                 Vector3 startPosition = GridPositionToWorld(column, line);
+                Vector2Int positionInGrid = new Vector2Int(column, line);
 
                 var unitGO = Instantiate(unitPrefab, startPosition, Quaternion.identity);
 
                 Unit unit = unitGO.GetComponent<Unit>();
                 unit.Squad = this;
-                unit.squadPosition = new Vector2Int(column, line);
+                unit.squadPosition = positionInGrid;
                 Units.Add(unit);
+                _positionsInGrid.Add(positionInGrid, unit);
 
                 unit.name = $"({column}, {line})";
 
@@ -91,8 +98,9 @@ public class SquadController : MonoBehaviour
 
     protected void UpdatePosition()
     {
-        int totalUnits = Units.Count; // sua lista de unidades
+        int totalUnits = Units.Count;
         int totalSlots = Lines * Columns;
+        double[,] costMatrix;
 
         if (totalUnits != totalSlots)
         {
@@ -100,7 +108,6 @@ public class SquadController : MonoBehaviour
             return;
         }
 
-        // Etapa 1: gerar lista de posições do grid
         List<Vector3> formationPositions = new List<Vector3>();
         for (int line = 0; line < Lines; line++)
         {
@@ -110,70 +117,49 @@ public class SquadController : MonoBehaviour
             }
         }
 
-        // Etapa 2: criar matriz de custo [unidade i] x [posição j]
-        int N = totalUnits;
-        double[,] costMatrix = new double[N, N];
-        for (int i = 0; i < N; i++)
-        {
-            for (int j = 0; j < N; j++)
-            {
-                costMatrix[i, j] = Vector3.SqrMagnitude(Units[i].transform.position - formationPositions[j]);
-            }
-        }
+        costMatrix = GetCostMatrix(totalUnits, formationPositions);
 
         AuctionAlgorithm solver = new AuctionAlgorithm(costMatrix);
         int[] assignment = solver.Solve();
 
-        // Etapa 4: mover unidades para as posições designadas
-        for (int i = 0; i < N; i++)
+        for (int i = 0; i < totalUnits; i++)
         {
             Vector3 destination = formationPositions[assignment[i]];
-            Units[i].Mover.MoveToPosition(destination);
+            if (Units[i].isAlive)
+                Units[i].Mover.MoveToPosition(destination);
         }
     }
 
-    private void GreedAssigment()
+    protected void MoveInFormation()
     {
-        List<Vector2Int> formationSlots = CreateFormationSlotsList();
-        List<Unit> closedList = new List<Unit>();
-
-        foreach (Vector2Int slot in formationSlots)
-        {
-            Unit closestUnit = null;
-            float minDist = float.MaxValue;
-
-            foreach (Unit unit in Units)
-            {
-                if (closedList.Contains(unit)) { continue; }
-
-                Vector3 slotWorldPosition = GridPositionToWorld(slot.x, slot.y);
-                float dist = Vector3.SqrMagnitude(unit.transform.position - slotWorldPosition);
-
-                if (dist < minDist)
-                {
-                    minDist = dist;
-                    closestUnit = unit;
-                }
-            }
-
-            UnitsGrid[slot.x, slot.y] = closestUnit;
-            closedList.Add(closestUnit);
-        }
-    }
-
-    private List<Vector2Int> CreateFormationSlotsList()
-    {
-        List<Vector2Int> formationSlots = new List<Vector2Int>();
-
         for (int line = 0; line < Lines; line++)
         {
             for (int column = 0; column < Columns; column++)
             {
-                formationSlots.Add(new Vector2Int(column, line));
+                Unit unit = UnitsGrid[column, line];
+
+                if (!UnitsGrid[column, line].isAlive) { continue; }
+                if (!UnitsGrid[column, line].isActiveAndEnabled) { continue; }
+
+                Vector3 destination = GridPositionToWorld(column, line);
+                unit.Mover.MoveToPosition(destination);
+            }
+        }
+    }
+
+    private double[,] GetCostMatrix(int totalUnits, List<Vector3> formationPositions)
+    {
+        double[,] costMatrix = new double[totalUnits, totalUnits];
+        for (int i = 0; i < totalUnits; i++)
+        {
+            for (int j = 0; j < totalUnits; j++)
+            {
+                double cost = Units[i].isAlive ? Vector3.SqrMagnitude(Units[i].transform.position - formationPositions[j]) : 1e9;
+                costMatrix[i, j] = cost;
             }
         }
 
-        return formationSlots;
+        return costMatrix;
     }
 
     private Vector3 GridPositionToWorld(int column, int line)
@@ -181,6 +167,69 @@ public class SquadController : MonoBehaviour
         float x = (column - Columns / 2) * UnitSpacing;
         float z = (line - Lines / 2) * UnitSpacing;
         return transform.position + transform.rotation * new Vector3(x, 0, z);
+    }
+
+    public bool ReplaceDeadUnit(Unit deadUnit)
+    {
+        Unit closestUnit = null;
+        float currentDistance = 0;
+        float Wx = 2;
+        float Wy = 1;
+
+        for (int line = 0; line < Lines; line++)
+        {
+            for (int column = 0; column < Columns; column++)
+            {
+                int index = line * Columns + column;
+                if (index >= Units.Count) continue;
+
+                Unit unit = UnitsGrid[column, line];
+
+                if (unit == deadUnit) { continue; }
+                if (!unit.isAlive) { continue; }
+
+                Vector2Int unitPosition = unit.squadPosition;
+                Vector2Int deadUnitPosition = deadUnit.squadPosition;
+
+                int penaltyY = (unitPosition.y >= deadUnitPosition.y) ? 5 : 0;
+                int penaltyX = (unitPosition.x > deadUnitPosition.x) ? 2 : 0;
+
+                float distance = Wx * Mathf.Abs(unitPosition.x - deadUnitPosition.x) + Wy * Mathf.Abs(unitPosition.y - deadUnitPosition.y);
+                float heuristc = distance + penaltyX + penaltyY;
+
+                if (closestUnit == null || heuristc < currentDistance)
+                {
+                    closestUnit = unit;
+                    currentDistance = heuristc;
+                }
+            }
+        }
+
+
+        if (closestUnit == null)
+        {
+            return false;
+        }
+
+        if (closestUnit.squadPosition.y == deadUnit.squadPosition.y || closestUnit.squadPosition.y > deadUnit.squadPosition.y)
+        {
+            return true;
+        }
+
+        Vector2Int oldPos = deadUnit.squadPosition;
+
+        UnitsGrid[deadUnit.squadPosition.x, deadUnit.squadPosition.y] = closestUnit;
+        UnitsGrid[closestUnit.squadPosition.x, closestUnit.squadPosition.y] = deadUnit;
+
+        deadUnit.squadPosition = closestUnit.squadPosition;
+        closestUnit.squadPosition = oldPos;
+
+        return ReplaceDeadUnit(deadUnit);
+    }
+
+    public Unit DebugKill()
+    {
+        return UnitsGrid[1, 2];
     }
 
     public Rect GetSquadAABB()
@@ -273,6 +322,31 @@ public class SquadController : MonoBehaviour
     //        UnitsGrid[slot.x, slot.y] = closestUnit;
     //        closedList.Add(closestUnit);
     //    }
+    //}
+
+    //public void ReplaceDeadUnit(Unit deadUnit)
+    //{
+    //    Vector2Int replacementSlot = deadUnit.squadPosition + new Vector2Int(deadUnit.squadPosition.x, deadUnit.squadPosition.y - 1);
+    //    Unit replacement = null;
+
+    //    if (_positionsInGrid.ContainsKey(replacementSlot))
+    //    {
+    //        replacement = UnitsGrid[replacementSlot.x, replacementSlot.y];
+    //        Vector2Int oldSlot = deadUnit.squadPosition;
+
+    //        UnitsGrid[deadUnit.squadPosition.x, deadUnit.squadPosition.y] = replacement;
+    //        UnitsGrid[replacement.squadPosition.x, replacement.squadPosition.y] = deadUnit;
+
+    //        deadUnit.squadPosition = replacementSlot;
+    //        replacement.squadPosition = oldSlot;
+
+    //        if (replacement.isAlive)
+    //            replacement.Mover.MoveToPosition(GridPositionToWorld(replacement.squadPosition.x, replacement.squadPosition.y));
+    //    }
+    //    else
+    //        return;
+
+    //    ReplaceDeadUnit(deadUnit);
     //}
 
     //columns = Mathf.CeilToInt(Mathf.Sqrt(numberOfUnits));
