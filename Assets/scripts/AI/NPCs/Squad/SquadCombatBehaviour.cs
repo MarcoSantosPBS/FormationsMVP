@@ -39,7 +39,7 @@ public class SquadCombatBehaviour : SquadBehaviour
         {
             if (unit.GetTargetUnit() != null) { continue; }
             if (unit.squadPosition.y != lines - 1) { continue; }
-            //if (!unit.IsFlankingUnit()) { continue; }
+            if (!unit.IsFlankingUnit()) { continue; }
 
             Unit closestEnemy = null;
             float closestEnemyDistance = -1;

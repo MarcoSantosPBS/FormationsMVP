@@ -58,13 +58,10 @@ public class SquadController : MonoBehaviour
             UpdatePosition();
         }
 
-        if (squadsInRange.Count > 0 && !_isEngaged)
-        {
-            _idleBehaviour.Deactivate();
-            _combatBehaviour.Activate();
-            _combatBehaviour.SetMainOponent(squadsInRange[0]);
-            _isEngaged = true;
-        }
+        //if (squadsInRange.Count > 0 && !_isEngaged)
+        //{
+            
+        //}
 
         if (squadsInRange.Count == 0 && _isEngaged)
         {
@@ -72,6 +69,16 @@ public class SquadController : MonoBehaviour
             _idleBehaviour.Activate();
             _isEngaged = false;
         }
+    }
+
+    public void OnEngaggingEnemy(SquadController enemySquad)
+    {
+        if (_isEngaged) { return; }
+
+        _idleBehaviour.Deactivate();
+        _combatBehaviour.Activate();
+        _combatBehaviour.SetMainOponent(enemySquad);
+        _isEngaged = true;
     }
 
     private void GenerateUnits()

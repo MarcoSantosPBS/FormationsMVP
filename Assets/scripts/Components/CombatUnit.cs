@@ -41,21 +41,19 @@ public class CombatUnit : MonoBehaviour
         {
             if (hit.collider.TryGetComponent(out Unit targetUnit))
             {
-                //SetFlankingTargetUnit(null);
                 IsFlankingUnit = false;
                 if (targetUnit.Squad.type == unit.Squad.type)
                 {
-                    //SetTargetUnit(null);
+                    SetTargetUnit(null);
                     return;
                 }
 
-                //SetTargetUnit(targetUnit);
+                SetTargetUnit(targetUnit);
             }
         }
         else
         {
             IsFlankingUnit = true;
-            //SetTargetUnit(null);
         }
     }
 
@@ -80,7 +78,7 @@ public class CombatUnit : MonoBehaviour
     {
         if (targetUnit != null && !unit.Squad._isEngaged)
         {
-            //unit.Squad.OnEngaggingEnemy(targetUnit.Squad);
+            unit.Squad.OnEngaggingEnemy(targetUnit.Squad);
         }
         this.targetUnit = targetUnit;
     }
