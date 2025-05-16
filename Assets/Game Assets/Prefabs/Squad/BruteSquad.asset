@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 590502f518e4cf743a58ac5c3a3af44c, type: 3}
-  m_Name: PaladinSquadSO
+  m_Name: BruteSquad
   m_EditorClassIdentifier: 
-  unitPrefab: {fileID: 2995352771101547053, guid: 47a028a157d85d44eb127e569a54885d, type: 3}
+  unitPrefab: {fileID: 3868996219126588003, guid: 29db0c2316b4e8543bcc077f38442fff, type: 3}
   type: 0

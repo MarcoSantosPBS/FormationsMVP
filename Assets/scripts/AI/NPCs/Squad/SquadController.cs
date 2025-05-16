@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Unity.Collections;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
-using UnityEngine.UIElements;
 
 public class SquadController : MonoBehaviour
 {
-    [SerializeField] GameObject unitPrefab;
-    [SerializeField] public SquadFriendlyType type;
+    [SerializeField] GameObject UnitPrefab;
+    [SerializeField] public SquadFriendlyType Type;
 
     [field: SerializeField] public float UnitSpacing { get; private set; }
     [field: SerializeField] public int Columns { get; private set; }
@@ -36,9 +31,15 @@ public class SquadController : MonoBehaviour
     private void Start()
     {
         UnitCollider.Instance.squads.Add(this);
-        GenerateUnits();
         _isEngaged = false;
         _idleBehaviour.Activate();
+    }
+
+    public void InitSquad(SquadScriptableObject squadSO, SquadFriendlyType type)
+    {
+        UnitPrefab = squadSO.unitPrefab;
+        Type = type;
+        GenerateUnits();
     }
 
     private void Update()
@@ -99,13 +100,13 @@ public class SquadController : MonoBehaviour
                 Vector3 startPosition = GridPositionToWorld(column, line);
                 Vector2Int positionInGrid = new Vector2Int(column, line);
 
-                var unitGO = Instantiate(unitPrefab, startPosition, Quaternion.LookRotation(transform.forward));
+                var unitGO = Instantiate(UnitPrefab, startPosition, Quaternion.LookRotation(transform.forward));
 
                 Unit unit = unitGO.GetComponent<Unit>();
                 unit.Squad = this;
                 unit.squadPosition = positionInGrid;
                 Units.Add(unit);
-                if (type == SquadFriendlyType.Enemy)
+                if (Type == SquadFriendlyType.Enemy)
                 {
                     unit.name = $"(Inimigo: {column}, {line})";
                 }

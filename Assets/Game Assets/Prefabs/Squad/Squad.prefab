@@ -46,13 +46,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9e22fb5f976bdc4e85b2ed3455544e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitPrefab: {fileID: 7564461215700530424, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
-  type: 0
+  UnitPrefab: {fileID: 0}
+  Type: 0
   <UnitSpacing>k__BackingField: 1
   <Columns>k__BackingField: 8
-  <Lines>k__BackingField: 3
-  <Speed>k__BackingField: 0
-  enemySquad: {fileID: 0}
+  <Lines>k__BackingField: 5
+  <Speed>k__BackingField: 5
 --- !u!114 &4930545605184970263
 MonoBehaviour:
   m_ObjectHideFlags: 0

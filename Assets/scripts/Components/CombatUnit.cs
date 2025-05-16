@@ -37,7 +37,7 @@ public class CombatUnit : MonoBehaviour
         {
             if (hit.collider.TryGetComponent(out Unit targetUnit))
             {
-                if (targetUnit.Squad.type == unit.Squad.type)
+                if (targetUnit.Squad.Type == unit.Squad.Type)
                 {
                     SetTargetUnit(null);
                     return;
@@ -93,7 +93,7 @@ public class CombatUnit : MonoBehaviour
         Gizmos.DrawWireSphere(origin + direction * maxDistance, radius);
 
         if (targetUnit == null) { return; }
-        if (GetComponent<Unit>().Squad.type == SquadFriendlyType.Enemy) { return; }
+        if (GetComponent<Unit>().Squad.Type == SquadFriendlyType.Enemy) { return; }
 
         Gizmos.color = Color.magenta;
         Gizmos.DrawLine(transform.position, targetUnit.transform.position);
