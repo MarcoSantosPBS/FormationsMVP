@@ -25,6 +25,7 @@ public class NavMeshMover : MonoBehaviour, IUnitMover
 
     public void Stop()
     {
+        agent.isStopped = true;
         agent.ResetPath();
     }
 

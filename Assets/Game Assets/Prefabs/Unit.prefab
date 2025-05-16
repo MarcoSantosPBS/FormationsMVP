@@ -322,17 +322,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56f0c2dabf621fa42a46e5185ddb55e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 0
+  damage: 1
   attackInterval: 1.5
   targetUnit: {fileID: 0}
-  attackRange: 0.5
+  attackRange: 0.75
   unit: {fileID: 6235931275490182718}
   isEngaged: 0
   unitLayer:
     serializedVersion: 2
     m_Bits: 128
   detectionRadius: 0.75
-  _flankDetector: {fileID: 172335562176406573}
 --- !u!114 &-2373391959517814697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -369,7 +368,7 @@ NavMeshAgent:
   m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_ObstacleAvoidanceType: 0
 --- !u!65 &78424134746191458
 BoxCollider:
   m_ObjectHideFlags: 0

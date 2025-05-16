@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class MouseWorld : MonoBehaviour
 {
+    
     private Camera _main;
     public static MouseWorld Instance;
 
@@ -18,6 +19,16 @@ public class MouseWorld : MonoBehaviour
     void Start()
     {
         _main = Camera.main;
+    }
+
+    public T GetTInMousePosition<T>(LayerMask layerMask) where T : MonoBehaviour
+    {
+        bool hasHit = Physics.Raycast(GetCameraRay(), out RaycastHit hitInfo, float.MaxValue, layerMask);
+
+        if (hasHit)
+            return hitInfo.collider.GetComponent<T>();
+
+        return null;
     }
 
     public Vector3 GetMousePosition()

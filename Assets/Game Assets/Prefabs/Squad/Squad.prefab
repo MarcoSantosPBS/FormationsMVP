@@ -48,12 +48,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitPrefab: {fileID: 7564461215700530424, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
   type: 0
-  <KeepFormationInCombat>k__BackingField: 0
   <UnitSpacing>k__BackingField: 1
-  <Columns>k__BackingField: 3
+  <Columns>k__BackingField: 8
   <Lines>k__BackingField: 3
+  <Speed>k__BackingField: 0
   enemySquad: {fileID: 0}
-  <_isEngaged>k__BackingField: 0
 --- !u!114 &4930545605184970263
 MonoBehaviour:
   m_ObjectHideFlags: 0

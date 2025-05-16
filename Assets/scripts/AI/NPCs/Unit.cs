@@ -79,17 +79,4 @@ public class Unit : MonoBehaviour
 
     public Unit GetTargetUnit() => combatUnit.targetUnit;
     public void SetTargetUnit(Unit targetUnit) => combatUnit.SetTargetUnit(targetUnit);
-    public bool IsFlankingUnit() => combatUnit.IsFlankingUnit;
-
-    //public void AttackNearUnit()
-    //{
-    //    if (combatUnit.targetUnit != null) { return; }
-
-    //    var nearbUnits = UnitCollider.Instance.GetUnitsCloseTo(this, true, false);
-
-    //    if (nearbUnits.Count == 0) { return; }
-
-    //    SetTargetUnit(nearbUnits[0]);
-    //}
-
 }
