@@ -10,6 +10,10 @@ public class CombatUnit : MonoBehaviour
     [SerializeField] public bool isEngaged;
     [SerializeField] private LayerMask unitLayer;
     [SerializeField] private float detectionRadius;
+    [SerializeField] private FlankDetector _flankDetector;
+
+    [field: SerializeField] public bool IsFlankingUnit { get; private set; }
+    [SerializeField] private Unit _flankingTarget;
 
     private float lastAttackTime = -1;
 
@@ -37,18 +41,21 @@ public class CombatUnit : MonoBehaviour
         {
             if (hit.collider.TryGetComponent(out Unit targetUnit))
             {
+                //SetFlankingTargetUnit(null);
+                IsFlankingUnit = false;
                 if (targetUnit.Squad.type == unit.Squad.type)
                 {
-                    SetTargetUnit(null);
+                    //SetTargetUnit(null);
                     return;
                 }
 
-                SetTargetUnit(targetUnit);
+                //SetTargetUnit(targetUnit);
             }
         }
         else
         {
-            SetTargetUnit(null);
+            IsFlankingUnit = true;
+            //SetTargetUnit(null);
         }
     }
 
@@ -71,7 +78,16 @@ public class CombatUnit : MonoBehaviour
 
     public void SetTargetUnit(Unit targetUnit)
     {
+        if (targetUnit != null && !unit.Squad._isEngaged)
+        {
+            //unit.Squad.OnEngaggingEnemy(targetUnit.Squad);
+        }
         this.targetUnit = targetUnit;
+    }
+
+    public void SetFlankingTargetUnit(Unit targetUnit)
+    {
+        _flankingTarget = targetUnit;
     }
 
     void OnDrawGizmos()
@@ -81,22 +97,27 @@ public class CombatUnit : MonoBehaviour
         float radius = detectionRadius;
         float maxDistance = attackRange;
 
-        // Desenhar a esfera de origem
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(origin, radius);
+        //// Desenhar a esfera de origem
+        //Gizmos.color = Color.green;
+        //Gizmos.DrawWireSphere(origin, radius);
 
-        // Desenhar a direção do cast
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(origin, origin + direction * maxDistance);
+        //// Desenhar a direção do cast
+        //Gizmos.color = Color.yellow;
+        //Gizmos.DrawLine(origin, origin + direction * maxDistance);
 
-        // Desenhar a esfera final (no fim do cast)
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(origin + direction * maxDistance, radius);
+        //// Desenhar a esfera final (no fim do cast)
+        //Gizmos.color = Color.red;
+        //Gizmos.DrawWireSphere(origin + direction * maxDistance, radius);
 
         if (targetUnit == null) { return; }
         if (GetComponent<Unit>().Squad.type == SquadFriendlyType.Enemy) { return; }
 
         Gizmos.color = Color.magenta;
         Gizmos.DrawLine(transform.position, targetUnit.transform.position);
+
+        if (_flankingTarget == null) { return; }
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position, _flankingTarget.transform.position);
     }
 }

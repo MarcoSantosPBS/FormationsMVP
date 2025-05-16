@@ -16,12 +16,13 @@ public class SquadController : MonoBehaviour
     [field: SerializeField] public float UnitSpacing { get; private set; }
     [field: SerializeField] public int Columns { get; private set; }
     [field: SerializeField] public int Lines { get; private set; }
+    [SerializeField] public SquadController enemySquad;
 
     public List<Unit> Units { get; private set; }
     public Transform Pivot { get; private set; }
     public Unit[,] UnitsGrid { get; private set; }
+    [field: SerializeField] public bool _isEngaged { get; set; }
 
-    private bool _isEngaged;
     private SquadCombatBehaviour _combatBehaviour;
     private SquadIdleBehaviour _idleBehaviour;
     private Dictionary<Vector2Int, Unit> _positionsInGrid;
@@ -61,6 +62,7 @@ public class SquadController : MonoBehaviour
         {
             _idleBehaviour.Deactivate();
             _combatBehaviour.Activate();
+            _combatBehaviour.SetMainOponent(squadsInRange[0]);
             _isEngaged = true;
         }
 
@@ -88,8 +90,12 @@ public class SquadController : MonoBehaviour
                 unit.squadPosition = positionInGrid;
                 Units.Add(unit);
                 _positionsInGrid.Add(positionInGrid, unit);
-
-                unit.name = $"({column}, {line})";
+                if (type == SquadFriendlyType.Enemy)
+                {
+                    unit.name = $"(Inimigo: {column}, {line})";
+                }
+                else
+                    unit.name = $"({column}, {line})";
 
                 UnitsGrid[column, line] = unit;
             }
@@ -125,7 +131,7 @@ public class SquadController : MonoBehaviour
         for (int i = 0; i < totalUnits; i++)
         {
             Vector3 destination = formationPositions[assignment[i]];
-            if (Units[i].isAlive)
+            if (Units[i].IsAlive)
                 Units[i].Mover.MoveToPosition(destination);
         }
     }
@@ -138,7 +144,7 @@ public class SquadController : MonoBehaviour
             {
                 Unit unit = UnitsGrid[column, line];
 
-                if (!UnitsGrid[column, line].isAlive) { continue; }
+                if (!UnitsGrid[column, line].IsAlive) { continue; }
                 if (!UnitsGrid[column, line].isActiveAndEnabled) { continue; }
 
                 Vector3 destination = GridPositionToWorld(column, line);
@@ -154,7 +160,7 @@ public class SquadController : MonoBehaviour
         {
             for (int j = 0; j < totalUnits; j++)
             {
-                double cost = Units[i].isAlive ? Vector3.SqrMagnitude(Units[i].transform.position - formationPositions[j]) : 1e9;
+                double cost = Units[i].IsAlive ? Vector3.SqrMagnitude(Units[i].transform.position - formationPositions[j]) : 1e9;
                 costMatrix[i, j] = cost;
             }
         }
@@ -186,7 +192,7 @@ public class SquadController : MonoBehaviour
                 Unit unit = UnitsGrid[column, line];
 
                 if (unit == deadUnit) { continue; }
-                if (!unit.isAlive) { continue; }
+                if (!unit.IsAlive) { continue; }
 
                 Vector2Int unitPosition = unit.squadPosition;
                 Vector2Int deadUnitPosition = deadUnit.squadPosition;

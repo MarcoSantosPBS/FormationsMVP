@@ -254,6 +254,7 @@ GameObject:
   - component: {fileID: -2373391959517814697}
   - component: {fileID: -3733175327805781552}
   - component: {fileID: 78424134746191458}
+  - component: {fileID: 172335562176406573}
   m_Layer: 7
   m_Name: Unit
   m_TagString: Untagged
@@ -295,7 +296,6 @@ MonoBehaviour:
   health: {fileID: -2373391959517814697}
   combatUnit: {fileID: 3614991884403593872}
   animator: {fileID: 0}
-  isAlive: 0
   squadPosition: {x: 0, y: 0}
 --- !u!114 &8456616784108376725
 MonoBehaviour:
@@ -322,16 +322,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56f0c2dabf621fa42a46e5185ddb55e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 1
+  damage: 0
   attackInterval: 1.5
   targetUnit: {fileID: 0}
-  attackRange: 2
+  attackRange: 0.5
   unit: {fileID: 6235931275490182718}
   isEngaged: 0
   unitLayer:
     serializedVersion: 2
     m_Bits: 128
   detectionRadius: 0.75
+  _flankDetector: {fileID: 172335562176406573}
 --- !u!114 &-2373391959517814697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -390,3 +391,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.7454455, y: 1.6764727, z: 0.55937254}
   m_Center: {x: -0.03899008, y: 0.8090296, z: -0.005736962}
+--- !u!114 &172335562176406573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7564461215700530424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87a4e0cf695725540a328472aceca3b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  detectionRadius: 6
+  flankAngle: 90
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  enemyFormationCenter: {fileID: 0}
+  enemyFormationForward: {x: 0, y: 0, z: 0}

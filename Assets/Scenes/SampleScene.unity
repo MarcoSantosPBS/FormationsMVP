@@ -382,7 +382,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 1
-  m_FollowOffset: {x: 0, y: 19, z: -17}
+  m_FollowOffset: {x: 0, y: 10, z: -17}
   m_XDamping: 0
   m_YDamping: 0
   m_ZDamping: 0
@@ -517,8 +517,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40816978, y: 3.882759e-15, z: -1.7360219e-15, w: 0.91290605}
-  m_LocalPosition: {x: 47.6, y: 19, z: 21.3}
+  m_LocalRotation: {x: 0.1875933, y: -0.6755615, z: 0.18396094, w: 0.6889005}
+  m_LocalPosition: {x: 74.10473, y: 18.690212, z: 52.652184}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1327,6 +1327,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: enemySquad
+      value: 
+      objectReference: {fileID: 1220245183}
+    - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: unitPrefab
       value: 
       objectReference: {fileID: 3868996219126588003, guid: 29db0c2316b4e8543bcc077f38442fff, type: 3}
@@ -1341,10 +1345,6 @@ PrefabInstance:
     - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: <Columns>k__BackingField
       value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
-      propertyPath: <UnitSpacing>k__BackingField
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: <KeepFormationInCombat>k__BackingField
@@ -1651,8 +1651,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1372524051}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40816978, y: 3.361334e-15, z: -5.6981076e-16, w: 0.91290605}
-  m_LocalPosition: {x: 47.6, y: 19, z: 21.3}
+  m_LocalRotation: {x: 0.1875933, y: -0.6755614, z: 0.18396093, w: 0.6889006}
+  m_LocalPosition: {x: 74.10473, y: 18.690212, z: 52.652184}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1695,8 +1695,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1431788304}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 47.6, y: 0, z: 38.3}
+  m_LocalRotation: {x: -0.29843917, y: 0.63606036, z: -0.2925004, w: -0.6486947}
+  m_LocalPosition: {x: 57.10798, y: 8.690213, z: 52.98454}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2012,6 +2012,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
+      propertyPath: enemySquad
+      value: 
+      objectReference: {fileID: 1424004950}
+    - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: unitPrefab
       value: 
       objectReference: {fileID: 2995352771101547053, guid: 47a028a157d85d44eb127e569a54885d, type: 3}
@@ -2026,10 +2030,6 @@ PrefabInstance:
     - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: <Columns>k__BackingField
       value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
-      propertyPath: <UnitSpacing>k__BackingField
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5540566645587209867, guid: f565013043630f14794185f1f63fb7ae, type: 3}
       propertyPath: m_Name

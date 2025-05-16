@@ -11,16 +11,16 @@ public class Unit : MonoBehaviour
     [SerializeField] public CombatUnit combatUnit;
     [SerializeField] private Animator animator;
 
-    public bool isAlive;
-    public Vector2Int squadPosition;
-
+    public bool IsAlive { get; private set; }
     public IUnitMover Mover { get; set; }
     public SquadController Squad { get; set; }
+
+    public Vector2Int squadPosition;
 
     private void Awake()
     {
         Mover = GetComponent<IUnitMover>();
-        isAlive = true;
+        IsAlive = true;
     }
 
     private void Start()
@@ -45,7 +45,7 @@ public class Unit : MonoBehaviour
     private void health_OnDeath()
     {
         UnitCollider.Instance.units.Remove(this);
-        isAlive = false;
+        IsAlive = false;
         gameObject.SetActive(false);
         Squad.ReplaceDeadUnit(this);
     }
@@ -67,17 +67,6 @@ public class Unit : MonoBehaviour
         return new Rect(unitPos.x - neighborhoodRange, unitPos.z - neighborhoodRange, neighborhoodRange * 2f, neighborhoodRange * 2f);
     }
 
-    public void AttackNearUnit()
-    {
-        if (combatUnit.targetUnit != null) { return; }
-
-        var nearbUnits = UnitCollider.Instance.GetUnitsCloseTo(this, true, false);
-
-        if (nearbUnits.Count == 0) { return; }
-
-        SetTargetUnit(nearbUnits[0]);
-    }
-
     public bool TakeDamage(int damage, Unit attacker)
     {
         if (GetTargetUnit() == null && attacker != null)
@@ -90,5 +79,17 @@ public class Unit : MonoBehaviour
 
     public Unit GetTargetUnit() => combatUnit.targetUnit;
     public void SetTargetUnit(Unit targetUnit) => combatUnit.SetTargetUnit(targetUnit);
+    public bool IsFlankingUnit() => combatUnit.IsFlankingUnit;
+
+    //public void AttackNearUnit()
+    //{
+    //    if (combatUnit.targetUnit != null) { return; }
+
+    //    var nearbUnits = UnitCollider.Instance.GetUnitsCloseTo(this, true, false);
+
+    //    if (nearbUnits.Count == 0) { return; }
+
+    //    SetTargetUnit(nearbUnits[0]);
+    //}
 
 }
