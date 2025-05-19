@@ -125,14 +125,13 @@ public class SquadController : MonoBehaviour
         return transform.position + transform.rotation * new Vector3(x, 0, z);
     }
 
-    public bool ReplaceDeadUnit(Unit deadUnit)
+    public bool ReplaceDeadUnit(Unit deadUnit, Unit currentClosestUnit = null)
     {
-        if (IsSquadDefeated()) 
+        if (IsSquadDefeated())
         {
             Destroy(gameObject);
             return false;
         }
-
 
         Unit closestUnit = null;
         float currentDistance = 0;
@@ -156,9 +155,10 @@ public class SquadController : MonoBehaviour
 
                 int penaltyY = (unitPosition.y >= deadUnitPosition.y) ? 5 : 0;
                 int penaltyX = (unitPosition.x > deadUnitPosition.x) ? 0 : 0;
+                float distFromCenter = Mathf.Abs(unit.transform.position.x - transform.position.x);
 
                 float distance = Wx * Mathf.Abs(unitPosition.x - deadUnitPosition.x) + Wy * Mathf.Abs(unitPosition.y - deadUnitPosition.y);
-                float heuristc = distance + penaltyX + penaltyY;
+                float heuristc = distance + penaltyX + penaltyY - distFromCenter;
 
                 if (closestUnit == null || heuristc < currentDistance)
                 {
@@ -168,17 +168,45 @@ public class SquadController : MonoBehaviour
             }
         }
 
-
         if (closestUnit == null)
         {
             return false;
         }
 
-        if (closestUnit.squadPosition.y == deadUnit.squadPosition.y || closestUnit.squadPosition.y > deadUnit.squadPosition.y)
+        if (currentClosestUnit == closestUnit)
         {
             return true;
         }
 
+        if (!CanReplaceUnit(closestUnit, deadUnit))
+        {
+            return true;
+        }
+
+        SwapUnitsPosition(deadUnit, closestUnit);
+
+        return ReplaceDeadUnit(deadUnit, closestUnit);
+    }
+
+    private bool CanReplaceUnit(Unit closestUnit, Unit deadUnit)
+    {
+        Vector3 dirToCentroid = (transform.position - closestUnit.transform.position).normalized;
+        Vector3 dirToDeadUnit = (deadUnit.transform.position - closestUnit.transform.position).normalized;
+        float dotProduct = Vector3.Dot(dirToCentroid, dirToDeadUnit);
+
+        bool isInSameLine = closestUnit.squadPosition.y == deadUnit.squadPosition.y;
+        bool isCloserToCenter = dotProduct > 0;
+        bool isInFrontLine = closestUnit.squadPosition.y > deadUnit.squadPosition.y;
+
+        if (isInFrontLine) { return false; }
+        if (!isInSameLine) { return true; }
+        if (isCloserToCenter) { return true;}
+
+        return false;
+    }
+
+    private void SwapUnitsPosition(Unit deadUnit, Unit closestUnit)
+    {
         Vector2Int oldPos = deadUnit.squadPosition;
 
         UnitsGrid[deadUnit.squadPosition.x, deadUnit.squadPosition.y] = closestUnit;
@@ -188,8 +216,6 @@ public class SquadController : MonoBehaviour
         closestUnit.squadPosition = oldPos;
 
         closestUnit.Mover.MoveToPosition(GridPositionToWorld(closestUnit.squadPosition.x, closestUnit.squadPosition.y));
-
-        return ReplaceDeadUnit(deadUnit);
     }
 
     public void SetCentroidToFormationCenter()
