@@ -89,7 +89,7 @@ public class UnitCollider : MonoBehaviour
         return allNeighbors;
     }
 
-    public List<SquadController> CheckSquadCollision(SquadController squadController, bool ignoreAlliedCollision)
+    public List<SquadController> CheckSquadCollision(SquadController squadController, bool ignoreAlliedCollision, bool ignoreEnemyCollision = false)
     {
         Rect searchArea = squadController.GetSquadAABB();
         var neighbors = quadtreeSquad.Search(searchArea);
@@ -99,6 +99,7 @@ public class UnitCollider : MonoBehaviour
         {
             if (neighbor == squadController) continue;
             if (ignoreAlliedCollision && neighbor.Type == squadController.Type) continue;
+            if (ignoreEnemyCollision && neighbor.Type != squadController.Type) continue;
 
             squadsInRange.Add(neighbor);
         }

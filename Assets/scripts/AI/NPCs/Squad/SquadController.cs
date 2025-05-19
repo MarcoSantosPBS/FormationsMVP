@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class SquadController : MonoBehaviour
 {
-    [SerializeField] GameObject UnitPrefab;
-    [SerializeField] public SquadFriendlyType Type;
-
     [field: SerializeField] public float UnitSpacing { get; private set; }
     [field: SerializeField] public int Columns { get; private set; }
     [field: SerializeField] public int Lines { get; private set; }
@@ -16,6 +13,9 @@ public class SquadController : MonoBehaviour
     public Unit[,] UnitsGrid { get; private set; }
     public bool _isEngaged { get; set; }
 
+    [SerializeField] GameObject UnitPrefab;
+    [SerializeField] public SquadFriendlyType Type;
+    [SerializeField] public Factions Faction;
 
     private SquadCombatBehaviour _combatBehaviour;
     private SquadMovingBehaviour _idleBehaviour;
@@ -35,10 +35,11 @@ public class SquadController : MonoBehaviour
         _idleBehaviour.Activate();
     }
 
-    public void InitSquad(SquadScriptableObject squadSO, SquadFriendlyType type)
+    public void InitSquad(SquadScriptableObject squadSO, SquadFriendlyType type, Factions faction)
     {
         UnitPrefab = squadSO.unitPrefab;
         Type = type;
+        Faction = faction;
         GenerateUnits();
     }
 
@@ -46,7 +47,6 @@ public class SquadController : MonoBehaviour
     {
         var squadsInRange = UnitCollider.Instance.CheckSquadCollision(this, true);
 
-        if (IsSquadDefeated()) Destroy(gameObject);
         if (squadsInRange.Count == 0) Desengage();
     }
 
@@ -127,6 +127,13 @@ public class SquadController : MonoBehaviour
 
     public bool ReplaceDeadUnit(Unit deadUnit)
     {
+        if (IsSquadDefeated()) 
+        {
+            Destroy(gameObject);
+            return false;
+        }
+
+
         Unit closestUnit = null;
         float currentDistance = 0;
         float Wx = 2;
@@ -148,7 +155,7 @@ public class SquadController : MonoBehaviour
                 Vector2Int deadUnitPosition = deadUnit.squadPosition;
 
                 int penaltyY = (unitPosition.y >= deadUnitPosition.y) ? 5 : 0;
-                int penaltyX = (unitPosition.x > deadUnitPosition.x) ? 2 : 0;
+                int penaltyX = (unitPosition.x > deadUnitPosition.x) ? 0 : 0;
 
                 float distance = Wx * Mathf.Abs(unitPosition.x - deadUnitPosition.x) + Wy * Mathf.Abs(unitPosition.y - deadUnitPosition.y);
                 float heuristc = distance + penaltyX + penaltyY;
@@ -210,10 +217,10 @@ public class SquadController : MonoBehaviour
         Vector3 halfWidth = 0.5f * Columns * UnitSpacing * frontLinePivotPosition.right;
         Vector3 halfDepth = 0.5f * Lines * UnitSpacing * -frontLinePivotPosition.forward;
 
-        Vector3 corner0 = frontLinePivotPosition.position - halfWidth - halfDepth * 2;
-        Vector3 corner1 = frontLinePivotPosition.position + halfWidth - halfDepth * 2;
-        Vector3 corner2 = frontLinePivotPosition.position - halfWidth * 2f + halfDepth * 3f;
-        Vector3 corner3 = frontLinePivotPosition.position + halfWidth * 2f + halfDepth * 3f;
+        Vector3 corner0 = frontLinePivotPosition.position - halfWidth - halfDepth * 1.3f;
+        Vector3 corner1 = frontLinePivotPosition.position + halfWidth - halfDepth * 1.3f;
+        Vector3 corner2 = frontLinePivotPosition.position - halfWidth * 1.3f + halfDepth * 1.3f;
+        Vector3 corner3 = frontLinePivotPosition.position + halfWidth * 1.3f + halfDepth * 1.3f;
 
         Vector2[] points = new Vector2[4];
         points[0] = new Vector2(corner0.x, corner0.z);
@@ -229,6 +236,11 @@ public class SquadController : MonoBehaviour
         Rect quadRect = new Rect(minX, minY, maxX - minX, maxY - minY);
 
         return quadRect;
+    }
+
+    public Unit DebugKill()
+    {
+        return UnitsGrid[1, 4];
     }
 
 #if UNITY_EDITOR

@@ -15,11 +15,7 @@ public class SquadCombatBehaviour : SquadBehaviour
     public override void Activate()
     {
         base.Activate();
-        foreach (Unit unit in _units)
-        {
-            unit.Mover.Stop();
-        }
-
+        StopFormation();
         controller.SetCentroidToFormationCenter();
     }
 

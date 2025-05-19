@@ -57,4 +57,13 @@ public abstract class SquadBehaviour : MonoBehaviour
         controller.transform.position += Time.deltaTime * controller.Speed * controller.transform.forward;
     }
 
+    protected void StopFormation()
+    {
+        foreach (Unit unit in _units)
+        {
+            if (unit.IsAlive)
+                unit.Mover.Stop();
+        }
+    }
+
 }

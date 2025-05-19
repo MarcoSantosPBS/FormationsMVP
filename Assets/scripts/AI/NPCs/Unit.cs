@@ -32,10 +32,6 @@ public class Unit : MonoBehaviour
     private void Update()
     {
         if (Squad == null) return;
-
-        //AttackNearUnit();
-        //transform.rotation = Quaternion.Lerp(transform.rotation, Squad.transform.rotation, Time.deltaTime * 5f);
-
         if (animator == null) { return; }
 
         //passar isso aqui para a classe mover
