@@ -221,7 +221,7 @@ public class SquadController : MonoBehaviour
                 Vector2Int unitPosition = unit.squadPosition;
                 Vector2Int deadUnitPosition = deadUnit.squadPosition;
 
-                int penaltyY = (unitPosition.y >= deadUnitPosition.y) ? 5 : 0;
+                int penaltyY = (unitPosition.y >= deadUnitPosition.y) ? 15 : 0;
                 int penaltyX = (unitPosition.x > deadUnitPosition.x) ? 0 : 0;
 
                 float distance = Wx * Mathf.Abs(unitPosition.x - deadUnitPosition.x) + Wy * Mathf.Abs(unitPosition.y - deadUnitPosition.y);

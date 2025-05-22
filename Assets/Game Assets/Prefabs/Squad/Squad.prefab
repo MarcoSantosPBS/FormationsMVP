@@ -51,7 +51,7 @@ MonoBehaviour:
   <UnitSpacing>k__BackingField: 1
   <Columns>k__BackingField: 8
   <Lines>k__BackingField: 5
-  <Speed>k__BackingField: 0
+  <Speed>k__BackingField: 7
   UnitPrefab: {fileID: 0}
   Type: 0
   Faction: 0
