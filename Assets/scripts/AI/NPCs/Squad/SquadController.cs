@@ -19,7 +19,7 @@ public class SquadController : MonoBehaviour
 
     private SquadCombatBehaviour _combatBehaviour;
     private SquadMovingBehaviour _idleBehaviour;
-    private int onDeathCalls;
+    private bool _mustAllignToCenter;
 
     private void Awake()
     {
@@ -38,7 +38,10 @@ public class SquadController : MonoBehaviour
 
     private void Update()
     {
-        //TryToReformToCenter();
+        if (_mustAllignToCenter)
+        {
+            TryToReformToCenter();
+        }
 
         var squadsInRange = UnitCollider.Instance.CheckSquadCollision(this, true);
 
@@ -139,8 +142,9 @@ public class SquadController : MonoBehaviour
             for (int j = 0; j < N; j++)
             {
                 Vector3 pos = GridPositionToWorld(sortedSlots[j].x, sortedSlots[j].y);
+                Vector3 unitPos = GridPositionToWorld(aliveUnits[i].squadPosition.x, aliveUnits[i].squadPosition.y);
 
-                costMatrix[i, j] = Vector3.SqrMagnitude(Units[i].transform.position - pos);
+                costMatrix[i, j] = Vector3.SqrMagnitude(unitPos - pos);
             }
         }
 
@@ -153,6 +157,8 @@ public class SquadController : MonoBehaviour
             Vector2Int slot = sortedSlots[assignment[i]];
             SwapUnitsPosition(UnitsGrid[slot.x, slot.y], aliveUnits[i]);
         }
+
+        _mustAllignToCenter = false;
     }
 
     List<Vector2Int> GetSortedSlotPositions()
@@ -269,27 +275,30 @@ public class SquadController : MonoBehaviour
 
     private void health_OnDeath(Unit unit)
     {
-        onDeathCalls++;
+        _mustAllignToCenter = true;
         UnitCollider.Instance.units.Remove(unit);
         unit.IsAlive = false;
         unit.gameObject.SetActive(false);
         ReplaceDeadUnit(unit);
-        onDeathCalls--;
     }
 
     public void TryToReformToCenter()
     {
         if (IsAllBackLinesDefeated())
         {
-            //foreach (Unit unit in Units)
-            //{
-            //    if (unit.IsAlive && unit.Mover.IsMoving())
-            //    {
-            //        return;
-            //    }
-            //}
+            foreach (Unit unit in Units)
+            {
+                if (unit.IsAlive && unit.Mover.IsMoving())
+                {
+                    return;
+                }
+            }
 
             CentralizeFormation();
+        }
+        else
+        {
+            _mustAllignToCenter = false;
         }
     }
 
