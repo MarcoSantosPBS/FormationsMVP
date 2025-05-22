@@ -7,12 +7,19 @@ public class Health : MonoBehaviour
     [SerializeField] GameObject healthBar;
     
 
-    public Action OnDeath;
+    public Action<Unit> OnDeath;
     [SerializeField] private float currentHealth;
+
+    private Unit _unit;
 
     private void Awake()
     {
         currentHealth = maxHealth;
+    }
+
+    private void Start()
+    {
+        _unit = GetComponent<Unit>();
     }
 
     private void Update()
@@ -27,7 +34,7 @@ public class Health : MonoBehaviour
         if (currentHealth <= 0)
         {
             currentHealth = 0;
-            OnDeath?.Invoke();
+            OnDeath?.Invoke(_unit);
             return true;
         }
 

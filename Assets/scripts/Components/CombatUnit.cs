@@ -3,20 +3,24 @@ using UnityEngine;
 public class CombatUnit : MonoBehaviour
 {
     [field: SerializeField] public CombatUnitSO CombatUnitSO { get; private set; }
+    [field: SerializeField] public Health Health { get; private set; }
 
     [SerializeField] private Unit unit;
     [SerializeField] private LayerMask unitLayer;
     [SerializeField] private float detectionRadius;
-    [SerializeField] private Health health;
     [SerializeField] private CombatCalculator CombatCalculator;
 
     private CombatUnit _targetUnit;
     private float _lastAttackTime = -1;
     private SquadController _squadController;
 
+    private void Awake()
+    {
+        Health = GetComponent<Health>();
+    }
+
     private void Start()
     {
-        health.OnDeath += health_OnDeath;
         _squadController = unit.Squad;
     }
 
@@ -34,14 +38,6 @@ public class CombatUnit : MonoBehaviour
                 _targetUnit = null;   
             }
         }
-    }
-
-    private void health_OnDeath()
-    {
-        UnitCollider.Instance.units.Remove(unit);
-        unit.IsAlive = false;
-        gameObject.SetActive(false);
-        _squadController.ReplaceDeadUnit(unit);
     }
 
     private void GetEnemyInRange()
@@ -83,6 +79,11 @@ public class CombatUnit : MonoBehaviour
         return false;
     }
 
+    public void DebugKillUnit()
+    {
+        Health.TakeDamage(10000000);
+    }
+
     public bool CalculateAttack()
     {
         return CombatCalculator.CalculateAttack(CombatUnitSO, _targetUnit.CombatUnitSO);
@@ -101,7 +102,7 @@ public class CombatUnit : MonoBehaviour
             SetTargetUnit(attacker);
         }
 
-        return health.TakeDamage(damage);
+        return Health.TakeDamage(damage);
     }
 
     public void SetTargetUnit(CombatUnit targetUnit)

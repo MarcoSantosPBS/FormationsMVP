@@ -40,4 +40,9 @@ public class Unit : MonoBehaviour
     {
         transform.position += displacement;
     }
+
+    internal void DebugKillUnit()
+    {
+        combatUnit.DebugKillUnit();
+    }
 }

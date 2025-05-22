@@ -19,6 +19,7 @@ public class SquadController : MonoBehaviour
 
     private SquadCombatBehaviour _combatBehaviour;
     private SquadMovingBehaviour _idleBehaviour;
+    private int onDeathCalls;
 
     private void Awake()
     {
@@ -35,19 +36,35 @@ public class SquadController : MonoBehaviour
         _idleBehaviour.Activate();
     }
 
+    private void Update()
+    {
+        //TryToReformToCenter();
+
+        var squadsInRange = UnitCollider.Instance.CheckSquadCollision(this, true);
+
+        if (squadsInRange.Count == 0) Desengage();
+    }
+
+    private void OnDestroy()
+    {
+        foreach (var unit in Units)
+        {
+            if (unit != null)
+            {
+                UnitCollider.Instance.units.Remove(unit);
+                Destroy(unit.gameObject);
+            }
+        }
+
+        UnitCollider.Instance.squads.Remove(this);
+    }
+
     public void InitSquad(SquadScriptableObject squadSO, SquadFriendlyType type, Factions faction)
     {
         UnitPrefab = squadSO.unitPrefab;
         Type = type;
         Faction = faction;
         GenerateUnits();
-    }
-
-    private void Update()
-    {
-        var squadsInRange = UnitCollider.Instance.CheckSquadCollision(this, true);
-
-        if (squadsInRange.Count == 0) Desengage();
     }
 
     public void OnEngaggingEnemy()
@@ -68,30 +85,6 @@ public class SquadController : MonoBehaviour
         _isEngaged = false;
     }
 
-    private void OnDestroy()
-    {
-        foreach (var unit in Units)
-        {
-            if (unit != null)
-            {
-                UnitCollider.Instance.units.Remove(unit);
-                Destroy(unit.gameObject);
-            }
-        }
-
-        UnitCollider.Instance.squads.Remove(this);
-    }
-
-    private bool IsSquadDefeated()
-    {
-        foreach (Unit unit in Units)
-        {
-            if (unit.IsAlive) { return false; }
-        }
-
-        return true;
-    }
-
     private void GenerateUnits()
     {
         for (int line = 0; line < Lines; line++)
@@ -107,6 +100,8 @@ public class SquadController : MonoBehaviour
                 unit.Squad = this;
                 unit.squadPosition = positionInGrid;
                 Units.Add(unit);
+                unit.combatUnit.Health.OnDeath += health_OnDeath;
+
                 if (Type == SquadFriendlyType.Enemy)
                 {
                     unit.name = $"(Inimigo: {column}, {line})";
@@ -117,6 +112,69 @@ public class SquadController : MonoBehaviour
                 UnitsGrid[column, line] = unit;
             }
         }
+    }
+
+    public void CentralizeFormation()
+    {
+        List<Unit> aliveUnits = new List<Unit>();
+        List<Vector2Int> sortedSlots = GetSortedSlotPositions();
+
+        for (int x = 0; x < Columns; x++)
+        {
+            for (int y = 0; y < Lines; y++)
+            {
+                Unit unit = UnitsGrid[x, y];
+                if (unit != null && unit.IsAlive)
+                {
+                    aliveUnits.Add(unit);
+                }
+            }
+        }
+
+        int N = aliveUnits.Count;
+        double[,] costMatrix = new double[N, N];
+
+        for (int i = 0; i < N; i++)
+        {
+            for (int j = 0; j < N; j++)
+            {
+                Vector3 pos = GridPositionToWorld(sortedSlots[j].x, sortedSlots[j].y);
+
+                costMatrix[i, j] = Vector3.SqrMagnitude(Units[i].transform.position - pos);
+            }
+        }
+
+        AuctionAlgorithm solver = new AuctionAlgorithm(costMatrix);
+        int[] assignment = solver.Solve();
+
+
+        for (int i = 0; i < N; i++)
+        {
+            Vector2Int slot = sortedSlots[assignment[i]];
+            SwapUnitsPosition(UnitsGrid[slot.x, slot.y], aliveUnits[i]);
+        }
+    }
+
+    List<Vector2Int> GetSortedSlotPositions()
+    {
+        List<Vector2Int> slots = new List<Vector2Int>();
+
+        int centerX = Columns / 2;
+        int firstLine = Lines - 1;
+
+        for (int x = 0; x < Columns; x++)
+        {
+            slots.Add(new Vector2Int(x, Lines - 1));
+        }
+
+        slots.Sort((a, b) =>
+        {
+            float distA = Vector2.Distance(a, new Vector2(centerX, firstLine));
+            float distB = Vector2.Distance(b, new Vector2(centerX, firstLine));
+            return distA.CompareTo(distB);
+        });
+
+        return slots;
     }
 
     public Vector3 GridPositionToWorld(int column, int line)
@@ -199,6 +257,60 @@ public class SquadController : MonoBehaviour
         closestUnit.Mover.MoveToPosition(GridPositionToWorld(closestUnit.squadPosition.x, closestUnit.squadPosition.y));
     }
 
+    private bool IsSquadDefeated()
+    {
+        foreach (Unit unit in Units)
+        {
+            if (unit.IsAlive) { return false; }
+        }
+
+        return true;
+    }
+
+    private void health_OnDeath(Unit unit)
+    {
+        onDeathCalls++;
+        UnitCollider.Instance.units.Remove(unit);
+        unit.IsAlive = false;
+        unit.gameObject.SetActive(false);
+        ReplaceDeadUnit(unit);
+        onDeathCalls--;
+    }
+
+    public void TryToReformToCenter()
+    {
+        if (IsAllBackLinesDefeated())
+        {
+            //foreach (Unit unit in Units)
+            //{
+            //    if (unit.IsAlive && unit.Mover.IsMoving())
+            //    {
+            //        return;
+            //    }
+            //}
+
+            CentralizeFormation();
+        }
+    }
+
+    private bool IsAllBackLinesDefeated()
+    {
+        for (int column = 0; column < Columns; column++)
+        {
+            for (int line = 0; line < Lines; line++)
+            {
+                if (line == Lines - 1) continue;
+
+                if (UnitsGrid[column, line].IsAlive)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     public void SetCentroidToFormationCenter()
     {
         Vector3 centroid = new Vector3();
@@ -245,9 +357,27 @@ public class SquadController : MonoBehaviour
         return quadRect;
     }
 
-    public Unit DebugKill()
+    public void DebugKill()
     {
-        return UnitsGrid[6, 4];
+        for (int x = 0; x < Columns; x++)
+        {
+            for (int y = 0; y < Lines; y++)
+            {
+                Unit unit = UnitsGrid[x, y];
+
+                if (y != Lines - 1)
+                {
+                    unit.DebugKillUnit();
+                    continue;
+                }
+
+                if (x == 1 || x == 3)
+                {
+                    unit.DebugKillUnit();
+                    continue;
+                }
+            }
+        }
     }
 
 #if UNITY_EDITOR
@@ -266,29 +396,5 @@ public class SquadController : MonoBehaviour
 #endif
 
     #region backup
-    //public void ReplaceDeadUnit(Unit deadUnit)
-    //{
-    //    Vector2Int replacementSlot = deadUnit.squadPosition + new Vector2Int(deadUnit.squadPosition.x, deadUnit.squadPosition.y - 1);
-    //    Unit replacement = null;
-
-    //    if (_positionsInGrid.ContainsKey(replacementSlot))
-    //    {
-    //        replacement = UnitsGrid[replacementSlot.x, replacementSlot.y];
-    //        Vector2Int oldSlot = deadUnit.squadPosition;
-
-    //        UnitsGrid[deadUnit.squadPosition.x, deadUnit.squadPosition.y] = replacement;
-    //        UnitsGrid[replacement.squadPosition.x, replacement.squadPosition.y] = deadUnit;
-
-    //        deadUnit.squadPosition = replacementSlot;
-    //        replacement.squadPosition = oldSlot;
-
-    //        if (replacement.isAlive)
-    //            replacement.Mover.MoveToPosition(GridPositionToWorld(replacement.squadPosition.x, replacement.squadPosition.y));
-    //    }
-    //    else
-    //        return;
-
-    //    ReplaceDeadUnit(deadUnit);
-    //}
     #endregion
 }

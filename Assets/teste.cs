@@ -15,8 +15,12 @@ public class teste : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.U))
         {
-            //Unit unit = squad.DebugKill();
-            //unit.TakeDamage(10000, null);
+            squad.DebugKill();
+        }
+
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            squad.CentralizeFormation();
         }
     }
 
