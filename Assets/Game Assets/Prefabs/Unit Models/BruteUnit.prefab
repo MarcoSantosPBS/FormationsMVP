@@ -78,7 +78,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8741973870024662622}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 9000000, guid: 8f935c4b65e22ad4cadad0e6aa6db99e, type: 2}
   m_Controller: {fileID: 9100000, guid: efb06e7948ae3074899ec40ebfe0ac0b, type: 2}
   m_CullingMode: 0
@@ -120,14 +120,34 @@ PrefabInstance:
       propertyPath: damage
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3614991884403593872, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+      propertyPath: CombatUnitSO
+      value: 
+      objectReference: {fileID: 11400000, guid: 4ad1efe74514f9948b0b759990e5e190, type: 2}
+    - target: {fileID: 3614991884403593872, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+      propertyPath: <CombatUnitSO>k__BackingField
+      value: 
+      objectReference: {fileID: 11400000, guid: 4ad1efe74514f9948b0b759990e5e190, type: 2}
     - target: {fileID: 6235931275490182718, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
       propertyPath: animator
+      value: 
+      objectReference: {fileID: 7452148339054136335}
+    - target: {fileID: 6235931275490182718, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+      propertyPath: <animator>k__BackingField
       value: 
       objectReference: {fileID: 7452148339054136335}
     - target: {fileID: 7564461215700530424, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
       propertyPath: m_Name
       value: BruteUnit
       objectReference: {fileID: 0}
+    - target: {fileID: 8543903748171499212, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+      propertyPath: m_Avatar
+      value: 
+      objectReference: {fileID: 9000000, guid: 8f935c4b65e22ad4cadad0e6aa6db99e, type: 2}
+    - target: {fileID: 8543903748171499212, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: efb06e7948ae3074899ec40ebfe0ac0b, type: 2}
     - target: {fileID: 9047789457837686354, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

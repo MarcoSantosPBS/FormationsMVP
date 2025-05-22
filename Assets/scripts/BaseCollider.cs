@@ -15,6 +15,7 @@ public class BaseCollider : MonoBehaviour
             if (squad.Faction != _faction)
             {
                 OnCollisionDetected?.Invoke(_faction);
+                Destroy(squad.gameObject);
             }
         }
     }

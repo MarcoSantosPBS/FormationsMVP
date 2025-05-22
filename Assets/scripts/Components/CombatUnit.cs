@@ -2,42 +2,57 @@ using UnityEngine;
 
 public class CombatUnit : MonoBehaviour
 {
-    [SerializeField] public int damage;
-    [SerializeField] private float attackInterval = 2.5f;
-    [SerializeField] public Unit targetUnit;
-    [SerializeField] private float attackRange = 1f;
+    [field: SerializeField] public CombatUnitSO CombatUnitSO { get; private set; }
+
     [SerializeField] private Unit unit;
-    [SerializeField] public bool isEngaged;
     [SerializeField] private LayerMask unitLayer;
     [SerializeField] private float detectionRadius;
+    [SerializeField] private Health health;
+    [SerializeField] private CombatCalculator CombatCalculator;
 
-    private float lastAttackTime = -1;
+    private CombatUnit _targetUnit;
+    private float _lastAttackTime = -1;
+    private SquadController _squadController;
+
+    private void Start()
+    {
+        health.OnDeath += health_OnDeath;
+        _squadController = unit.Squad;
+    }
 
     private void Update()
     {
-        lastAttackTime += Time.deltaTime;
+        _lastAttackTime += Time.deltaTime;
         GetEnemyInRange();
 
-        if (targetUnit != null)
+        if (_targetUnit != null)
         {
-            bool isEnemyDead = Attack();
+            bool isEnemyDead = TryToAttack();
 
             if (isEnemyDead)
             {
-                targetUnit = null;   
+                _targetUnit = null;   
             }
         }
     }
 
+    private void health_OnDeath()
+    {
+        UnitCollider.Instance.units.Remove(unit);
+        unit.IsAlive = false;
+        gameObject.SetActive(false);
+        _squadController.ReplaceDeadUnit(unit);
+    }
+
     private void GetEnemyInRange()
     {
-        bool hasHit = Physics.SphereCast(transform.position, detectionRadius, unit.Squad.transform.forward, out RaycastHit hit, attackRange, unitLayer);
+        bool hasHit = Physics.SphereCast(transform.position, detectionRadius, unit.Squad.transform.forward, out RaycastHit hit, CombatUnitSO.AttackRange, unitLayer);
 
         if (hasHit)
         {
-            if (hit.collider.TryGetComponent(out Unit targetUnit))
+            if (hit.collider.TryGetComponent(out CombatUnit targetUnit))
             {
-                if (targetUnit.Squad.Type == unit.Squad.Type)
+                if (targetUnit.GetSquadType() == GetSquadType())
                 {
                     SetTargetUnit(null);
                     return;
@@ -51,51 +66,82 @@ public class CombatUnit : MonoBehaviour
         SetTargetUnit(null);
     }
 
-    public bool Attack()
+    public bool TryToAttack()
     {
-        if (lastAttackTime > attackInterval)
+        float noiseAttackinterval = CombatUnitSO.AttackInterval + Random.Range(0.1f, 1f);
+
+        if (_lastAttackTime > noiseAttackinterval)
         {
-            lastAttackTime = 0f;
-            unit.AttackAnimation();
-            return targetUnit.TakeDamage(damage, unit);
+            _lastAttackTime = 0f;
+            if (CalculateAttack())
+            {
+                AttackAnimation();
+                return _targetUnit.TakeDamage(CombatUnitSO.Damage, this);
+            }
         }
 
         return false;
     }
 
-    public void SetTargetUnit(Unit targetUnit)
+    public bool CalculateAttack()
+    {
+        return CombatCalculator.CalculateAttack(CombatUnitSO, _targetUnit.CombatUnitSO);
+    }
+
+    public void AttackAnimation()
+    {
+        if (unit.Animator == null) { return; }
+        unit.Animator.SetTrigger("attack");
+    }
+
+    public bool TakeDamage(int damage, CombatUnit attacker)
+    {
+        if (_targetUnit == null && attacker != null)
+        {
+            SetTargetUnit(attacker);
+        }
+
+        return health.TakeDamage(damage);
+    }
+
+    public void SetTargetUnit(CombatUnit targetUnit)
     {
         if (targetUnit != null)
         {
             unit.Squad.OnEngaggingEnemy();
         }
 
-        this.targetUnit = targetUnit;
+        this._targetUnit = targetUnit;
     }
+
+    public SquadFriendlyType GetSquadType() => unit.Squad.Type;
+
+    #region gizmos
 
     void OnDrawGizmos()
     {
         Vector3 origin = transform.position;
         Vector3 direction = unit.Squad.transform.forward;
         float radius = detectionRadius;
-        float maxDistance = attackRange;
+        float maxDistance = CombatUnitSO.AttackRange;
 
-        // Desenhar a esfera de origem
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(origin, radius);
+        //// Desenhar a esfera de origem
+        //Gizmos.color = Color.green;
+        //Gizmos.DrawWireSphere(origin, radius);
 
-        // Desenhar a direção do cast
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(origin, origin + direction * maxDistance);
+        //// Desenhar a direção do cast
+        //Gizmos.color = Color.yellow;
+        //Gizmos.DrawLine(origin, origin + direction * maxDistance);
 
-        // Desenhar a esfera final (no fim do cast)
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(origin + direction * maxDistance, radius);
+        //// Desenhar a esfera final (no fim do cast)
+        //Gizmos.color = Color.red;
+        //Gizmos.DrawWireSphere(origin + direction * maxDistance, radius);
 
-        if (targetUnit == null) { return; }
-        if (GetComponent<Unit>().Squad.Type == SquadFriendlyType.Enemy) { return; }
+        if (_targetUnit == null) { return; }
+        if (GetComponent<Unit>().Squad.Type == SquadFriendlyType.Allied) { return; }
 
         Gizmos.color = Color.magenta;
-        Gizmos.DrawLine(transform.position, targetUnit.transform.position);
+        Gizmos.DrawLine(transform.position, _targetUnit.transform.position);
     }
+    #endregion
 }

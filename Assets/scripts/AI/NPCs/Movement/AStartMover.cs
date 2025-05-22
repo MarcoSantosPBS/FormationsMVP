@@ -49,11 +49,11 @@ public class AStartMover : MonoBehaviour, IUnitMover
 
     public void Stop()
     {
-        throw new System.NotImplementedException();
+        path = null;
     }
 
     public bool IsMoving()
     {
-        throw new System.NotImplementedException();
+        return true;//throw new System.NotImplementedException();
     }
 }

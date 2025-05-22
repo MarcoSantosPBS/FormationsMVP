@@ -52,6 +52,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Paladin
       objectReference: {fileID: 0}
+    - target: {fileID: 5340724022297969296, guid: 3f0793ff0f56a1447bbb52587a8d7b83, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -95,6 +99,14 @@ PrefabInstance:
       propertyPath: damage
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3614991884403593872, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+      propertyPath: CombatUnitSO
+      value: 
+      objectReference: {fileID: 11400000, guid: 22d77c4323835044f8bd71acfbcf1fad, type: 2}
+    - target: {fileID: 3614991884403593872, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+      propertyPath: <CombatUnitSO>k__BackingField
+      value: 
+      objectReference: {fileID: 11400000, guid: 22d77c4323835044f8bd71acfbcf1fad, type: 2}
     - target: {fileID: 5820182847030699861, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
       propertyPath: m_LocalPosition.y
       value: 1.945
@@ -103,10 +115,22 @@ PrefabInstance:
       propertyPath: animator
       value: 
       objectReference: {fileID: 8692372262112298997}
+    - target: {fileID: 6235931275490182718, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+      propertyPath: <animator>k__BackingField
+      value: 
+      objectReference: {fileID: 8692372262112298997}
     - target: {fileID: 7564461215700530424, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
       propertyPath: m_Name
       value: PaladinUnit
       objectReference: {fileID: 0}
+    - target: {fileID: 8543903748171499212, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+      propertyPath: m_Avatar
+      value: 
+      objectReference: {fileID: 9000000, guid: 66e70480582e14a429166b31657b1386, type: 2}
+    - target: {fileID: 8543903748171499212, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 1a0069a3a607b674289896ec6975aebe, type: 2}
     - target: {fileID: 9047789457837686354, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

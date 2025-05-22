@@ -74,6 +74,7 @@ public class SquadController : MonoBehaviour
         {
             if (unit != null)
             {
+                UnitCollider.Instance.units.Remove(unit);
                 Destroy(unit.gameObject);
             }
         }
@@ -120,12 +121,15 @@ public class SquadController : MonoBehaviour
 
     public Vector3 GridPositionToWorld(int column, int line)
     {
-        float x = (column - Columns / 2) * UnitSpacing;
+        float offsetX = (Columns % 2 == 0) ? UnitSpacing / 2f : 0f;
+
+        float x = (column - Columns / 2) * UnitSpacing + offsetX;
         float z = (line - Lines / 2) * UnitSpacing;
+
         return transform.position + transform.rotation * new Vector3(x, 0, z);
     }
 
-    public bool ReplaceDeadUnit(Unit deadUnit, Unit currentClosestUnit = null)
+    public bool ReplaceDeadUnit(Unit deadUnit)
     {
         if (IsSquadDefeated())
         {
@@ -155,10 +159,9 @@ public class SquadController : MonoBehaviour
 
                 int penaltyY = (unitPosition.y >= deadUnitPosition.y) ? 5 : 0;
                 int penaltyX = (unitPosition.x > deadUnitPosition.x) ? 0 : 0;
-                float distFromCenter = Mathf.Abs(unit.transform.position.x - transform.position.x);
 
                 float distance = Wx * Mathf.Abs(unitPosition.x - deadUnitPosition.x) + Wy * Mathf.Abs(unitPosition.y - deadUnitPosition.y);
-                float heuristc = distance + penaltyX + penaltyY - distFromCenter;
+                float heuristc = distance + penaltyX + penaltyY;
 
                 if (closestUnit == null || heuristc < currentDistance)
                 {
@@ -173,36 +176,14 @@ public class SquadController : MonoBehaviour
             return false;
         }
 
-        if (currentClosestUnit == closestUnit)
-        {
-            return true;
-        }
-
-        if (!CanReplaceUnit(closestUnit, deadUnit))
+        if (closestUnit.squadPosition.y == deadUnit.squadPosition.y || closestUnit.squadPosition.y > deadUnit.squadPosition.y)
         {
             return true;
         }
 
         SwapUnitsPosition(deadUnit, closestUnit);
 
-        return ReplaceDeadUnit(deadUnit, closestUnit);
-    }
-
-    private bool CanReplaceUnit(Unit closestUnit, Unit deadUnit)
-    {
-        Vector3 dirToCentroid = (transform.position - closestUnit.transform.position).normalized;
-        Vector3 dirToDeadUnit = (deadUnit.transform.position - closestUnit.transform.position).normalized;
-        float dotProduct = Vector3.Dot(dirToCentroid, dirToDeadUnit);
-
-        bool isInSameLine = closestUnit.squadPosition.y == deadUnit.squadPosition.y;
-        bool isCloserToCenter = dotProduct > 0;
-        bool isInFrontLine = closestUnit.squadPosition.y > deadUnit.squadPosition.y;
-
-        if (isInFrontLine) { return false; }
-        if (!isInSameLine) { return true; }
-        if (isCloserToCenter) { return true;}
-
-        return false;
+        return ReplaceDeadUnit(deadUnit);
     }
 
     private void SwapUnitsPosition(Unit deadUnit, Unit closestUnit)
@@ -266,7 +247,7 @@ public class SquadController : MonoBehaviour
 
     public Unit DebugKill()
     {
-        return UnitsGrid[1, 4];
+        return UnitsGrid[6, 4];
     }
 
 #if UNITY_EDITOR

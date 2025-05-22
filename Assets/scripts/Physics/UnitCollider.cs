@@ -58,7 +58,7 @@ public class UnitCollider : MonoBehaviour
 
                 Vector3 delta = neighbor.transform.position - unit.transform.position;
                 float dist = delta.magnitude;
-                float radiusSum = unit.radius + neighbor.radius;
+                float radiusSum = unit.Radius + neighbor.Radius;
 
                 if (dist < radiusSum & dist > 0.001f)
                 {
@@ -69,24 +69,6 @@ public class UnitCollider : MonoBehaviour
         }
 
         return hasAnyUnitCollided;
-    }
-
-    public List<Unit> GetUnitsCloseTo(Unit unit, bool ignoreAlliedCollision, bool ignoreEnemyCollision)
-    {
-        List<Unit> allNeighbors = new List<Unit>();
-
-        var neighbors = quadtree.Search(unit.GetNeighborhoodRange());
-
-        foreach (Unit neighbor in neighbors)
-        {
-            if (neighbor == unit) continue;
-            if (ignoreAlliedCollision && neighbor.Squad == unit.Squad) continue;
-            if (ignoreEnemyCollision && neighbor.Squad != unit.Squad) continue;
-
-            allNeighbors.Add(neighbor);
-        }
-
-        return allNeighbors;
     }
 
     public List<SquadController> CheckSquadCollision(SquadController squadController, bool ignoreAlliedCollision, bool ignoreEnemyCollision = false)
@@ -111,8 +93,8 @@ public class UnitCollider : MonoBehaviour
     {
         Vector3 mtv = delta.normalized * (radiusSum - dist);
 
-        float m1 = unit.mass;
-        float m2 = neighbor.mass;
+        float m1 = unit.Mass;
+        float m2 = neighbor.Mass;
         float somaMassas = m1 + m2;
 
         Vector3 pushUnit = -mtv * (m2 / somaMassas);
@@ -125,7 +107,7 @@ public class UnitCollider : MonoBehaviour
     private Rect GetUnitAABB(Unit unit)
     {
         Vector3 unitPos = unit.transform.position;
-        return new Rect(unitPos.x - unit.radius, unitPos.z - unit.radius, unit.radius * 2f, unit.radius * 2f);
+        return new Rect(unitPos.x - unit.Radius, unitPos.z - unit.Radius, unit.Radius * 2f, unit.Radius * 2f);
     }
 
     private void OnDrawGizmos()

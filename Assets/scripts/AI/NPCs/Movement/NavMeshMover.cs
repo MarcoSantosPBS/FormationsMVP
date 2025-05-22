@@ -7,7 +7,7 @@ public class NavMeshMover : MonoBehaviour, IUnitMover
 
     private void Start()
     {
-        //agent.updateRotation = false;
+        
     }
 
     private void Update()
@@ -21,6 +21,7 @@ public class NavMeshMover : MonoBehaviour, IUnitMover
     public void MoveToPosition(Vector3 destination)
     {
         agent.SetDestination(destination);
+        agent.isStopped = false;
     }
 
     public void Stop()
