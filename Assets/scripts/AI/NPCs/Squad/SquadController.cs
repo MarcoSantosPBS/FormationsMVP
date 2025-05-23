@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SquadController : MonoBehaviour
@@ -269,6 +270,7 @@ public class SquadController : MonoBehaviour
         closestUnit.squadPosition = oldPos;
 
         closestUnit.Mover.MoveToPosition(GridPositionToWorld(closestUnit.squadPosition.x, closestUnit.squadPosition.y));
+        deadUnit.transform.position = GridPositionToWorld(deadUnit.squadPosition.x, deadUnit.squadPosition.y);
     }
 
     private bool IsSquadDefeated()
@@ -411,7 +413,4 @@ public class SquadController : MonoBehaviour
         DestroyImmediate(gameObject);
     }
 #endif
-
-    #region backup
-    #endregion
 }

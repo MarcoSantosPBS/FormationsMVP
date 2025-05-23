@@ -9,9 +9,6 @@ public class LineSpawner : MonoBehaviour
     private List<SquadController> _playerSquads;
     private List<SquadController> _enemySquads;
 
-    public Transform GetAllySpawner() => allySpawner.transform;
-    public Transform GetEnemySpawner() => enemySpawner.transform;
-
     private void Awake()
     {
         _playerSquads = new List<SquadController>();
@@ -49,5 +46,8 @@ public class LineSpawner : MonoBehaviour
         }
     }
 
-    
+    public Transform GetAllySpawner() => allySpawner.transform;
+    public Transform GetEnemySpawner() => enemySpawner.transform;
+    public List<SquadController> GetPlayerSquadsInLine() => _playerSquads;
+    public List<SquadController> GetEnemySquadsInLine() => _enemySquads;
 }

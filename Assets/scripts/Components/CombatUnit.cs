@@ -126,17 +126,17 @@ public class CombatUnit : MonoBehaviour
         float radius = detectionRadius;
         float maxDistance = CombatUnitSO.AttackRange;
 
-        //// Desenhar a esfera de origem
-        //Gizmos.color = Color.green;
-        //Gizmos.DrawWireSphere(origin, radius);
+        // Desenhar a esfera de origem
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(origin, radius);
 
-        //// Desenhar a direção do cast
-        //Gizmos.color = Color.yellow;
-        //Gizmos.DrawLine(origin, origin + direction * maxDistance);
+        // Desenhar a direção do cast
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(origin, origin + direction * maxDistance);
 
-        //// Desenhar a esfera final (no fim do cast)
-        //Gizmos.color = Color.red;
-        //Gizmos.DrawWireSphere(origin + direction * maxDistance, radius);
+        // Desenhar a esfera final (no fim do cast)
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(origin + direction * maxDistance, radius);
 
         if (_targetUnit == null) { return; }
         if (GetComponent<Unit>().Squad.Faction == Factions.Rome) { return; }

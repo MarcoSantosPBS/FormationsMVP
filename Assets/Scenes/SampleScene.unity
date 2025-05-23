@@ -129,6 +129,8 @@ GameObject:
   m_Component:
   - component: {fileID: 782037}
   - component: {fileID: 782038}
+  - component: {fileID: 782039}
+  - component: {fileID: 782040}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -172,6 +174,30 @@ MonoBehaviour:
   SquadPrefab: {fileID: 5079699782156380283, guid: f565013043630f14794185f1f63fb7ae, type: 3}
   PlayerFaction: 0
   EnemyFaction: 1
+--- !u!114 &782039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 782036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e82fce1f0066a8c4ba06997b7fd2cad1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &782040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 782036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4300b1ddba6e2744895f642697f0a13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &26612930
 GameObject:
   m_ObjectHideFlags: 0

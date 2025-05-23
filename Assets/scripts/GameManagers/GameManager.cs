@@ -35,8 +35,8 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         SubscribeToEvents();
-        InstantiateSquad(DebugSpawner.GetAllySpawner(), AllySO, PlayerFaction);
-        InstantiateSquad(DebugSpawner.GetEnemySpawner(), EnemySO, EnemyFaction);
+        //InstantiateSquad(DebugSpawner.GetAllySpawner(), AllySO, PlayerFaction);
+        //InstantiateSquad(DebugSpawner.GetEnemySpawner(), EnemySO, EnemyFaction);
     }
 
     private void Update()
@@ -67,8 +67,6 @@ public class GameManager : MonoBehaviour
         return manager.GetAvailableSquads();
     }
 
-    public LineSpawner[] GetLineSpawners() => _lineSpawners;
-
     private void SubscribeToEvents()
     {
         foreach (BaseCollider baseCollider in _baseColliders)
@@ -84,6 +82,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void SetPlayerSelectedSquad(SquadScriptableObject _squadSO) => _playerSelectedSquadSO = _squadSO;
+    public LineSpawner[] GetLineSpawners() => _lineSpawners;
     public Factions GetPlayerFaction() => PlayerFaction;
     public Factions GetEnemyFaction() => EnemyFaction;
 
