@@ -27,11 +27,15 @@ public class SquadMovingBehaviour : SquadBehaviour
 
         if (alliesInRange.Count > 0) 
         {
-            if (HasAnyAllyInFront(alliesInRange) && _shouldKeepMoving)
+            if (HasAnyAllyInFront(alliesInRange))
             {
                 _shouldKeepMoving = false;
                 StopFormation();
                 return;
+            }
+            else
+            {
+                _shouldKeepMoving = true;
             }
         }
         else
