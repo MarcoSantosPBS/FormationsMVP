@@ -4,27 +4,25 @@ using UnityEngine;
 
 public class SquadController : MonoBehaviour
 {
-    [field: SerializeField] public float UnitSpacing { get; private set; }
-    [field: SerializeField] public int Columns { get; private set; }
-    [field: SerializeField] public int Lines { get; private set; }
     [field: SerializeField] public float Speed { get; private set; }
 
+    [SerializeField] public Factions Faction;
+
+    public float UnitSpacing { get; private set; }
+    public int Columns { get; private set; }
+    public int Lines { get; private set; }
     public List<Unit> Units { get; private set; }
     public Unit[,] UnitsGrid { get; private set; }
     public bool _isEngaged { get; set; }
 
-    [SerializeField] GameObject UnitPrefab;
-    [SerializeField] public SquadFriendlyType Type;
-    [SerializeField] public Factions Faction;
-
     private SquadCombatBehaviour _combatBehaviour;
     private SquadMovingBehaviour _idleBehaviour;
+    private GameObject _unitPrefab;
     private bool _mustAllignToCenter;
 
     private void Awake()
     {
         Units = new List<Unit>();
-        UnitsGrid = new Unit[Columns, Lines];
         _combatBehaviour = GetComponent<SquadCombatBehaviour>();
         _idleBehaviour = GetComponent<SquadMovingBehaviour>();
     }
@@ -62,11 +60,15 @@ public class SquadController : MonoBehaviour
         UnitCollider.Instance.squads.Remove(this);
     }
 
-    public void InitSquad(SquadScriptableObject squadSO, SquadFriendlyType type, Factions faction)
+    public void InitSquad(SquadScriptableObject squadSO)
     {
-        UnitPrefab = squadSO.unitPrefab;
-        Type = type;
-        Faction = faction;
+        _unitPrefab = squadSO.unitPrefab;
+        Faction = squadSO.Faction;
+        UnitSpacing = squadSO.UnitSpacing;
+        Columns = squadSO.Columns;
+        Lines = squadSO.Lines;
+        UnitsGrid = new Unit[Columns, Lines];
+
         GenerateUnits();
     }
 
@@ -97,7 +99,7 @@ public class SquadController : MonoBehaviour
                 Vector3 startPosition = GridPositionToWorld(column, line);
                 Vector2Int positionInGrid = new Vector2Int(column, line);
 
-                var unitGO = Instantiate(UnitPrefab, startPosition, Quaternion.LookRotation(transform.forward));
+                var unitGO = Instantiate(_unitPrefab, startPosition, Quaternion.LookRotation(transform.forward));
 
                 Unit unit = unitGO.GetComponent<Unit>();
                 unit.Squad = this;
@@ -105,7 +107,7 @@ public class SquadController : MonoBehaviour
                 Units.Add(unit);
                 unit.combatUnit.Health.OnDeath += health_OnDeath;
 
-                if (Type == SquadFriendlyType.Enemy)
+                if (Faction == Factions.Greek)
                 {
                     unit.name = $"(Inimigo: {column}, {line})";
                 }

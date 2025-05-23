@@ -18,8 +18,8 @@ public class GameManager : MonoBehaviour
         _factionManagers = FindObjectsByType<FactionManager>(FindObjectsSortMode.None);
 
         SubscribeToEvents();
-        InstantiateSquad(DebugSpawner.GetAllySpawner(), SquadFriendlyType.Allied, AllySO, Factions.Rome);
-        InstantiateSquad(DebugSpawner.GetEnemySpawner(), SquadFriendlyType.Enemy, EnemySO, Factions.Greek);
+        InstantiateSquad(DebugSpawner.GetAllySpawner(), AllySO);
+        InstantiateSquad(DebugSpawner.GetEnemySpawner(), EnemySO);
     }
 
     private void Update()
@@ -31,15 +31,15 @@ public class GameManager : MonoBehaviour
             if (line == null)
                 return;
 
-            InstantiateSquad(line.GetAllySpawner(), SquadFriendlyType.Allied, AllySO, Factions.Rome);
+            InstantiateSquad(line.GetAllySpawner(), AllySO);
         }
     }
 
-    private void InstantiateSquad(Transform spawnTransform, SquadFriendlyType type, SquadScriptableObject squadSO, Factions faction)
+    private void InstantiateSquad(Transform spawnTransform, SquadScriptableObject squadSO)
     {
         Quaternion rotation = Quaternion.LookRotation(spawnTransform.forward);
 
-        Instantiate(SquadPrefab, spawnTransform.position, rotation).InitSquad(squadSO, type, faction);
+        Instantiate(SquadPrefab, spawnTransform.position, rotation).InitSquad(squadSO);
     }
 
     private void SubscribeToEvents()

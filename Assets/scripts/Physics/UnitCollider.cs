@@ -80,8 +80,8 @@ public class UnitCollider : MonoBehaviour
         foreach (SquadController neighbor in neighbors)
         {
             if (neighbor == squadController) continue;
-            if (ignoreAlliedCollision && neighbor.Type == squadController.Type) continue;
-            if (ignoreEnemyCollision && neighbor.Type != squadController.Type) continue;
+            if (ignoreAlliedCollision && neighbor.Faction == squadController.Faction) continue;
+            if (ignoreEnemyCollision && neighbor.Faction != squadController.Faction) continue;
 
             squadsInRange.Add(neighbor);
         }

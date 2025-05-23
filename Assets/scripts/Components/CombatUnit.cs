@@ -48,7 +48,7 @@ public class CombatUnit : MonoBehaviour
         {
             if (hit.collider.TryGetComponent(out CombatUnit targetUnit))
             {
-                if (targetUnit.GetSquadType() == GetSquadType())
+                if (targetUnit.GetUnitFaction() == GetUnitFaction())
                 {
                     SetTargetUnit(null);
                     return;
@@ -115,7 +115,7 @@ public class CombatUnit : MonoBehaviour
         this._targetUnit = targetUnit;
     }
 
-    public SquadFriendlyType GetSquadType() => unit.Squad.Type;
+    public Factions GetUnitFaction() => unit.Squad.Faction;
 
     #region gizmos
 
@@ -139,7 +139,7 @@ public class CombatUnit : MonoBehaviour
         //Gizmos.DrawWireSphere(origin + direction * maxDistance, radius);
 
         if (_targetUnit == null) { return; }
-        if (GetComponent<Unit>().Squad.Type == SquadFriendlyType.Allied) { return; }
+        if (GetComponent<Unit>().Squad.Faction == Factions.Rome) { return; }
 
         Gizmos.color = Color.magenta;
         Gizmos.DrawLine(transform.position, _targetUnit.transform.position);
