@@ -41,6 +41,8 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        if (MouseWorld.Instance.IsMouseOverUI()) { return; }
+
         if (Input.GetMouseButtonDown(0))
         {
             LineSpawner line = MouseWorld.Instance.GetTInMousePosition<LineSpawner>(LineMask);
@@ -82,5 +84,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void SetPlayerSelectedSquad(SquadScriptableObject _squadSO) => _playerSelectedSquadSO = _squadSO;
+    public Factions GetPlayerFaction() => PlayerFaction;
+    public Factions GetEnemyFaction() => EnemyFaction;
 
 }

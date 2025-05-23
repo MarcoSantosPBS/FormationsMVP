@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -14,11 +15,13 @@ public class SquadController : MonoBehaviour
     public List<Unit> Units { get; private set; }
     public Unit[,] UnitsGrid { get; private set; }
     public bool _isEngaged { get; set; }
+    public Action<SquadController, Factions> OnDeath { get; set; }
 
     private SquadCombatBehaviour _combatBehaviour;
     private SquadMovingBehaviour _idleBehaviour;
     private GameObject _unitPrefab;
     private bool _mustAllignToCenter;
+    
 
     private void Awake()
     {
@@ -48,6 +51,8 @@ public class SquadController : MonoBehaviour
 
     private void OnDestroy()
     {
+        OnDeath?.Invoke(this, Faction);
+
         foreach (var unit in Units)
         {
             if (unit != null)
@@ -57,6 +62,7 @@ public class SquadController : MonoBehaviour
             }
         }
 
+        OnDeath = null;
         UnitCollider.Instance.squads.Remove(this);
     }
 

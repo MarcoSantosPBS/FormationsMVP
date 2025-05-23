@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class MouseWorld : MonoBehaviour
 {
@@ -29,6 +30,11 @@ public class MouseWorld : MonoBehaviour
             return hitInfo.collider.GetComponent<T>();
 
         return null;
+    }
+
+    public bool IsMouseOverUI()
+    {
+        return EventSystem.current.IsPointerOverGameObject();
     }
 
     public Vector3 GetMousePosition()
