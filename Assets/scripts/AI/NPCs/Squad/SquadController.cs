@@ -60,10 +60,10 @@ public class SquadController : MonoBehaviour
         UnitCollider.Instance.squads.Remove(this);
     }
 
-    public void InitSquad(SquadScriptableObject squadSO)
+    public void InitSquad(SquadScriptableObject squadSO, Factions faction)
     {
         _unitPrefab = squadSO.unitPrefab;
-        Faction = squadSO.Faction;
+        Faction = faction;
         UnitSpacing = squadSO.UnitSpacing;
         Columns = squadSO.Columns;
         Lines = squadSO.Lines;

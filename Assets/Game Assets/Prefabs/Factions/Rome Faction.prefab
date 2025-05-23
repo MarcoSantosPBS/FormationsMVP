@@ -10,12 +10,16 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 252673042319977780, guid: 887f1f77c7370314eb7e92afb084da5f, type: 3}
       propertyPath: _availableSquads.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 252673042319977780, guid: 887f1f77c7370314eb7e92afb084da5f, type: 3}
       propertyPath: '_availableSquads.Array.data[0]'
       value: 
       objectReference: {fileID: 11400000, guid: ccb75a6e74a98964291a554b1c8eae36, type: 2}
+    - target: {fileID: 252673042319977780, guid: 887f1f77c7370314eb7e92afb084da5f, type: 3}
+      propertyPath: '_availableSquads.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 039c120a709c6a54e8f00147f76ac991, type: 2}
     - target: {fileID: 1772881167846986819, guid: 887f1f77c7370314eb7e92afb084da5f, type: 3}
       propertyPath: m_Name
       value: Rome Faction

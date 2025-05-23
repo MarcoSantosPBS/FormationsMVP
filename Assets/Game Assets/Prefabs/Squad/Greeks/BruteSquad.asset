@@ -13,4 +13,8 @@ MonoBehaviour:
   m_Name: BruteSquad
   m_EditorClassIdentifier: 
   unitPrefab: {fileID: 3868996219126588003, guid: 29db0c2316b4e8543bcc077f38442fff, type: 3}
-  type: 0
+  Faction: 1
+  SquadName: Brute
+  Columns: 8
+  Lines: 5
+  UnitSpacing: 1

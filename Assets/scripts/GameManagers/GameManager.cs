@@ -8,18 +8,35 @@ public class GameManager : MonoBehaviour
     [SerializeField] private SquadScriptableObject AllySO;
     [SerializeField] private SquadScriptableObject EnemySO;
     [SerializeField] private SquadController SquadPrefab;
+    [SerializeField] private Factions PlayerFaction;
+    [SerializeField] private Factions EnemyFaction;
 
     private FactionManager[] _factionManagers;
     private BaseCollider[] _baseColliders;
+    private LineSpawner[] _lineSpawners;
+    private SquadScriptableObject _playerSelectedSquadSO;
+    
+    public static GameManager Instance;
+
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+        }
+
+        Instance = this;
+        _baseColliders = FindObjectsByType<BaseCollider>(FindObjectsSortMode.None);
+        _factionManagers = FindObjectsByType<FactionManager>(FindObjectsSortMode.None);
+        _lineSpawners = FindObjectsByType<LineSpawner>(FindObjectsSortMode.None);
+    }
+
 
     private void Start()
     {
-        _baseColliders = FindObjectsByType<BaseCollider>(FindObjectsSortMode.None);
-        _factionManagers = FindObjectsByType<FactionManager>(FindObjectsSortMode.None);
-
         SubscribeToEvents();
-        InstantiateSquad(DebugSpawner.GetAllySpawner(), AllySO);
-        InstantiateSquad(DebugSpawner.GetEnemySpawner(), EnemySO);
+        InstantiateSquad(DebugSpawner.GetAllySpawner(), AllySO, PlayerFaction);
+        InstantiateSquad(DebugSpawner.GetEnemySpawner(), EnemySO, EnemyFaction);
     }
 
     private void Update()
@@ -28,19 +45,27 @@ public class GameManager : MonoBehaviour
         {
             LineSpawner line = MouseWorld.Instance.GetTInMousePosition<LineSpawner>(LineMask);
 
-            if (line == null)
+            if (line == null || _playerSelectedSquadSO == null)
                 return;
 
-            InstantiateSquad(line.GetAllySpawner(), AllySO);
+            InstantiateSquad(line.GetAllySpawner(), _playerSelectedSquadSO, PlayerFaction);
         }
     }
 
-    private void InstantiateSquad(Transform spawnTransform, SquadScriptableObject squadSO)
+    public void InstantiateSquad(Transform spawnTransform, SquadScriptableObject squadSO, Factions faction)
     {
         Quaternion rotation = Quaternion.LookRotation(spawnTransform.forward);
 
-        Instantiate(SquadPrefab, spawnTransform.position, rotation).InitSquad(squadSO);
+        Instantiate(SquadPrefab, spawnTransform.position, rotation).InitSquad(squadSO, faction);
     }
+
+    public SquadScriptableObject[] GetAvailableSquads(Factions faction)
+    {
+        FactionManager manager =  _factionManagers.FirstOrDefault(x => x.Faction == faction);
+        return manager.GetAvailableSquads();
+    }
+
+    public LineSpawner[] GetLineSpawners() => _lineSpawners;
 
     private void SubscribeToEvents()
     {
@@ -55,5 +80,7 @@ public class GameManager : MonoBehaviour
         FactionManager factionManager = _factionManagers.FirstOrDefault(x => x.Faction == faction);
         factionManager.TakeBaseDamage(2);
     }
+
+    public void SetPlayerSelectedSquad(SquadScriptableObject _squadSO) => _playerSelectedSquadSO = _squadSO;
 
 }

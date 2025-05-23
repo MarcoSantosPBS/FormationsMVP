@@ -27,4 +27,7 @@ public class FactionManager : MonoBehaviour
     {
         _currentBaseHealth = _maxBaseHealth;
     }
+
+    public SquadScriptableObject[] GetAvailableSquads() => _availableSquads;
+    
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 public class SquadScriptableObject : ScriptableObject
 {
     [SerializeField] public GameObject unitPrefab;
-    [SerializeField] public Factions Faction;
+    [SerializeField] public string SquadName;
     [SerializeField] public int Columns = 8;
     [SerializeField] public int Lines = 5;
     [SerializeField] public int UnitSpacing = 1;

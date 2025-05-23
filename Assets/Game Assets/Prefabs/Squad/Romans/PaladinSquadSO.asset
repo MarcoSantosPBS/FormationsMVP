@@ -13,4 +13,8 @@ MonoBehaviour:
   m_Name: PaladinSquadSO
   m_EditorClassIdentifier: 
   unitPrefab: {fileID: 2995352771101547053, guid: 47a028a157d85d44eb127e569a54885d, type: 3}
-  type: 0
+  Faction: 0
+  SquadName: Paladin
+  Columns: 8
+  Lines: 5
+  UnitSpacing: 1
