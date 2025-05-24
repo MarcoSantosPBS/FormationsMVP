@@ -112,10 +112,10 @@ public class CombatUnit : MonoBehaviour
 
     public bool TakeDamage(int damage, CombatUnit attacker)
     {
-        if (_targetUnit == null && attacker != null)
-        {
-            SetTargetUnit(attacker);
-        }
+        //if (_targetUnit == null && attacker != null)
+        //{
+        //    SetTargetUnit(attacker);
+        //}
 
         return Health.TakeDamage(damage);
     }
