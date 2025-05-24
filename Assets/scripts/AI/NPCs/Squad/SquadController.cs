@@ -287,7 +287,8 @@ public class SquadController : MonoBehaviour
         _mustAllignToCenter = true;
         UnitCollider.Instance.units.Remove(unit);
         unit.IsAlive = false;
-        unit.gameObject.SetActive(false);
+        unit.combatUnit.DeactivateModel();
+        //unit.gameObject.SetActive(false);
         ReplaceDeadUnit(unit);
     }
 

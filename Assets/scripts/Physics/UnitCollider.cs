@@ -5,10 +5,11 @@ using UnityEngine;
 
 public class UnitCollider : MonoBehaviour
 {
+    [SerializeField] private Rect mapArea = new Rect(0, 0, 105, 140);
+
     public static UnitCollider Instance;
     private Quadtree<Unit> quadtree;
     private Quadtree<SquadController> quadtreeSquad;
-    private Rect mapArea = new Rect(-50, -50, 150, 150);
     public List<Unit> units = new List<Unit>();
     public List<SquadController> squads = new List<SquadController>();
 
@@ -123,6 +124,8 @@ public class UnitCollider : MonoBehaviour
         //    DrawRectGizmo(aabb);
         //    DrawRectGizmo(unit.GetNeighborhoodRange());
         //}
+
+        DrawRectGizmo(mapArea);
 
         foreach (var squad in squads)
         {

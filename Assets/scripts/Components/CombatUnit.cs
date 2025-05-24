@@ -9,6 +9,7 @@ public class CombatUnit : MonoBehaviour
     [SerializeField] private LayerMask unitLayer;
     [SerializeField] private float detectionRadius;
     [SerializeField] private CombatCalculator CombatCalculator;
+    [SerializeField] private GameObject unitModel;
 
     private CombatUnit _targetUnit;
     private float _lastAttackTime = -1;
@@ -110,9 +111,17 @@ public class CombatUnit : MonoBehaviour
         if (targetUnit != null)
         {
             unit.Squad.OnEngaggingEnemy();
+            Vector3 dirToEnemy = (targetUnit.transform.position - transform.position).normalized;
+            transform.rotation = Quaternion.LookRotation(dirToEnemy);
         }
 
         this._targetUnit = targetUnit;
+    }
+
+    public void DeactivateModel()
+    {
+        unitModel.SetActive(false);
+        GetComponent<Collider>().enabled = false;
     }
 
     public Factions GetUnitFaction() => unit.Squad.Faction;

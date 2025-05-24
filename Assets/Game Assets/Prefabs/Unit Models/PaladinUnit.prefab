@@ -48,9 +48,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1433609711181213044, guid: 3f0793ff0f56a1447bbb52587a8d7b83, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2013192315339527330, guid: 3f0793ff0f56a1447bbb52587a8d7b83, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4180462072252663105, guid: 3f0793ff0f56a1447bbb52587a8d7b83, type: 3}
       propertyPath: m_Name
       value: Paladin
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180462072252663105, guid: 3f0793ff0f56a1447bbb52587a8d7b83, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5340724022297969296, guid: 3f0793ff0f56a1447bbb52587a8d7b83, type: 3}
       propertyPath: m_Enabled
@@ -61,6 +73,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3f0793ff0f56a1447bbb52587a8d7b83, type: 3}
+--- !u!1 &629499733328773156 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4180462072252663105, guid: 3f0793ff0f56a1447bbb52587a8d7b83, type: 3}
+  m_PrefabInstance: {fileID: 3656802737575609701}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3486906764777878867 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 206155739371352118, guid: 3f0793ff0f56a1447bbb52587a8d7b83, type: 3}
@@ -99,6 +116,10 @@ PrefabInstance:
       propertyPath: damage
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3614991884403593872, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+      propertyPath: unitModel
+      value: 
+      objectReference: {fileID: 629499733328773156}
     - target: {fileID: 3614991884403593872, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
       propertyPath: CombatUnitSO
       value: 

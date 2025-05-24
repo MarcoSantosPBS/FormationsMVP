@@ -992,7 +992,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &737480419
 Transform:
   m_ObjectHideFlags: 0
@@ -1023,10 +1023,10 @@ MonoBehaviour:
   capacidade: 2
   area:
     serializedVersion: 2
-    x: -50
-    y: -50
-    width: 150
-    height: 150
+    x: 0
+    y: 0
+    width: 105
+    height: 140
   unidadePrefab: {fileID: 457254568771880155, guid: 74cf3823b6db2fc4892e9e88872b7be1, type: 3}
   regiaoDeBusca:
     serializedVersion: 2
@@ -1684,6 +1684,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e14365414cafbcd49a8514c4cc1ad57c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mapArea:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 105
+    height: 140
   units: []
   squads: []
 --- !u!1001 &2492338526677752706
@@ -1812,20 +1818,16 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5094500530880874213, guid: efb04856bbb93ab4db3e6050b4d564d5, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 26.510328
-      objectReference: {fileID: 0}
-    - target: {fileID: 5094500530880874213, guid: efb04856bbb93ab4db3e6050b4d564d5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 52.8441
       objectReference: {fileID: 0}
     - target: {fileID: 5094500530880874213, guid: efb04856bbb93ab4db3e6050b4d564d5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5094500530880874213, guid: efb04856bbb93ab4db3e6050b4d564d5, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 133.5573
+      value: 70.3059
       objectReference: {fileID: 0}
     - target: {fileID: 5094500530880874213, guid: efb04856bbb93ab4db3e6050b4d564d5, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1870,6 +1872,10 @@ PrefabInstance:
     - target: {fileID: 8892878607016919525, guid: efb04856bbb93ab4db3e6050b4d564d5, type: 3}
       propertyPath: m_Name
       value: Battlefield
+      objectReference: {fileID: 0}
+    - target: {fileID: 9133283905351881942, guid: efb04856bbb93ab4db3e6050b4d564d5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
