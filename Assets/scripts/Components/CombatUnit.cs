@@ -13,22 +13,20 @@ public class CombatUnit : MonoBehaviour
 
     private CombatUnit _targetUnit;
     private float _lastAttackTime = -1;
-    private SquadController _squadController;
 
     private void Awake()
     {
         Health = GetComponent<Health>();
     }
 
-    private void Start()
-    {
-        _squadController = unit.Squad;
-    }
-
     private void Update()
     {
         _lastAttackTime += Time.deltaTime;
-        GetEnemyInRange();
+
+        if (!unit.Squad.IsRanged)
+            GetEnemyInRange();
+        else
+            GetEnemyInRangedRange();
 
         if (_targetUnit != null)
         {
@@ -36,7 +34,23 @@ public class CombatUnit : MonoBehaviour
 
             if (isEnemyDead)
             {
-                _targetUnit = null;   
+                _targetUnit = null;
+            }
+        }
+    }
+
+    private void GetEnemyInRangedRange()
+    {
+        RaycastHit[] hits = Physics.SphereCastAll(transform.position, detectionRadius, unit.Squad.transform.forward, CombatUnitSO.AttackRange, unitLayer);
+
+        foreach (RaycastHit hit in hits)
+        {
+            if (hit.collider.TryGetComponent(out CombatUnit targetUnit))
+            {
+                if (targetUnit.GetUnitFaction() != GetUnitFaction())
+                {
+                    unit.Squad.OnEngaggingEnemyInRangedAttack(targetUnit.GetUnitSquad());
+                }
             }
         }
     }
@@ -115,7 +129,7 @@ public class CombatUnit : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(dirToEnemy);
         }
 
-        this._targetUnit = targetUnit;
+        _targetUnit = targetUnit;
     }
 
     public void DeactivateModel()
@@ -125,11 +139,15 @@ public class CombatUnit : MonoBehaviour
     }
 
     public Factions GetUnitFaction() => unit.Squad.Faction;
+    public SquadController GetUnitSquad() => unit.Squad;
+    public bool HasTargetUnit() => _targetUnit != null;
 
     #region gizmos
 
     void OnDrawGizmos()
     {
+        if (unit.squadPosition.y != unit.Squad.Lines - 1) { return; }
+
         Vector3 origin = transform.position;
         Vector3 direction = unit.Squad.transform.forward;
         float radius = detectionRadius;

@@ -8,4 +8,5 @@ public class SquadScriptableObject : ScriptableObject
     [SerializeField] public int Columns = 8;
     [SerializeField] public int Lines = 5;
     [SerializeField] public int UnitSpacing = 1;
+    [SerializeField] public bool IsRanged;
 }

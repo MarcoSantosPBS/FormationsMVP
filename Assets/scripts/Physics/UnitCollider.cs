@@ -164,40 +164,4 @@ public class UnitCollider : MonoBehaviour
         Gizmos.DrawLine(topRight, topLeft);
         Gizmos.DrawLine(topLeft, bottomLeft);
     }
-
-    #region backup
-    //public void GetTarget(List<Unit> units)
-    //{
-    //    foreach (Unit unit in units)
-    //    {
-    //        Rect searchArea = GetUnitAABB(unit);
-    //        List<Unit> neighbors = quadtree.Search(searchArea);
-    //        Unit closestEnemy = null;
-    //        float distanceToClosest = 0f;
-
-    //        foreach (Unit neighbor in neighbors)
-    //        {
-    //            if (neighbor == unit) continue;
-    //            if (neighbor.Squad == unit.Squad) continue;
-
-    //            if (closestEnemy == null)
-    //            {
-    //                closestEnemy = neighbor;
-    //                distanceToClosest = Vector3.Distance(unit.transform.position, neighbor.transform.position);
-    //                continue;
-    //            }
-
-    //            float newDistance = Vector3.Distance(unit.transform.position, neighbor.transform.position);
-
-    //            if (newDistance < distanceToClosest)
-    //            {
-    //                closestEnemy = neighbor;
-    //                distanceToClosest = newDistance;
-    //            }
-    //        }
-
-    //        unit.SetTargetUnit(closestEnemy);
-    //    }
-    //}
-    #endregion
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class SquadController : MonoBehaviour
@@ -14,8 +13,10 @@ public class SquadController : MonoBehaviour
     public int Columns { get; private set; }
     public int Lines { get; private set; }
     public List<Unit> Units { get; private set; }
+    public List<Unit> AliveUnits { get; private set; }
     public Unit[,] UnitsGrid { get; private set; }
     public bool _isEngaged { get; set; }
+    public bool IsRanged { get; set; }
     public Action<SquadController, Factions> OnDeath { get; set; }
 
     private SquadCombatBehaviour _combatBehaviour;
@@ -47,7 +48,7 @@ public class SquadController : MonoBehaviour
 
         var squadsInRange = UnitCollider.Instance.CheckSquadCollision(this, true);
 
-        if (squadsInRange.Count == 0) Desengage();
+        if (squadsInRange.Count == 0 && !IsRanged) Desengage();
     }
 
     private void OnDestroy()
@@ -74,9 +75,11 @@ public class SquadController : MonoBehaviour
         UnitSpacing = squadSO.UnitSpacing;
         Columns = squadSO.Columns;
         Lines = squadSO.Lines;
+        IsRanged = squadSO.IsRanged;
         UnitsGrid = new Unit[Columns, Lines];
 
         GenerateUnits();
+        UpdateAliveUnits();
     }
 
     public void OnEngaggingEnemy()
@@ -88,7 +91,15 @@ public class SquadController : MonoBehaviour
         _isEngaged = true;
     }
 
-    private void Desengage()
+    public void OnEngaggingEnemyInRangedAttack(SquadController targetSquad)
+    {
+        if (_isEngaged) { return; }
+
+        OnEngaggingEnemy();
+        _combatBehaviour.SetEnemySquad(targetSquad);
+    }
+
+    public void Desengage()
     {
         if (!_isEngaged) return;
 
@@ -288,7 +299,7 @@ public class SquadController : MonoBehaviour
         UnitCollider.Instance.units.Remove(unit);
         unit.IsAlive = false;
         unit.combatUnit.DeactivateModel();
-        //unit.gameObject.SetActive(false);
+        UpdateAliveUnits();
         ReplaceDeadUnit(unit);
     }
 
@@ -343,6 +354,23 @@ public class SquadController : MonoBehaviour
         Vector3 centroidPos = new Vector3(transform.position.x, transform.position.y, center.z);
 
         transform.position = centroidPos;
+    }
+
+    public void UpdateAliveUnits()
+    {
+        AliveUnits = new List<Unit>();
+
+        for (int x = 0; x < Columns; x++)
+        {
+            for (int y = 0; y < Lines; y++)
+            {
+                Unit unit = UnitsGrid[x, y];
+                if (unit != null && unit.IsAlive)
+                {
+                    AliveUnits.Add(unit);
+                }
+            }
+        }
     }
 
     public Rect GetSquadAABB()

@@ -55,7 +55,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2211743343468120305, guid: c2ee5ed0bf2800c49966be419f79414f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 689553313417185758}
   m_SourcePrefab: {fileID: 100100000, guid: c2ee5ed0bf2800c49966be419f79414f, type: 3}
 --- !u!4 &4215229346858287403 stripped
 Transform:
@@ -67,6 +70,28 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2211743343468120305, guid: c2ee5ed0bf2800c49966be419f79414f, type: 3}
   m_PrefabInstance: {fileID: 2344474164709040717}
   m_PrefabAsset: {fileID: 0}
+--- !u!95 &689553313417185758
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4483489622198889148}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 502f9225694c0f74f8ce59133250a433, type: 3}
+  m_Controller: {fileID: 9100000, guid: 1a0069a3a607b674289896ec6975aebe, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &4982260657723588555
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -79,6 +104,18 @@ PrefabInstance:
       propertyPath: unitModel
       value: 
       objectReference: {fileID: 4483489622198889148}
+    - target: {fileID: 3614991884403593872, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+      propertyPath: <Health>k__BackingField
+      value: 
+      objectReference: {fileID: 1888291638718537628}
+    - target: {fileID: 3614991884403593872, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+      propertyPath: <CombatUnitSO>k__BackingField
+      value: 
+      objectReference: {fileID: 11400000, guid: 1ca90e9da8043a04c97711db45d31e75, type: 2}
+    - target: {fileID: 6235931275490182718, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+      propertyPath: <Animator>k__BackingField
+      value: 
+      objectReference: {fileID: 689553313417185758}
     - target: {fileID: 7564461215700530424, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
       propertyPath: m_Name
       value: ArcherUnit
@@ -131,6 +168,17 @@ PrefabInstance:
       addedObject: {fileID: 4215229346858287403}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+--- !u!114 &1888291638718537628 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: -2373391959517814697, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}
+  m_PrefabInstance: {fileID: 4982260657723588555}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19473811daa1b0443a0f367827aa2247, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &4086101012777320857 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9047789457837686354, guid: 1f0c62aa65e65c743babdf7348ee7bac, type: 3}

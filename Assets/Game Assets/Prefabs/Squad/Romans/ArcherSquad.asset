@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 590502f518e4cf743a58ac5c3a3af44c, type: 3}
+  m_Name: ArcherSquad
+  m_EditorClassIdentifier: 
+  unitPrefab: {fileID: 3305315358751591219, guid: a3d0b62a6f3d48b4285f0490ef2708e6, type: 3}
+  SquadName: Archers
+  Columns: 8
+  Lines: 5
+  UnitSpacing: 1
+  IsRanged: 1
