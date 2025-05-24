@@ -15,19 +15,14 @@ public class LineSpawner : MonoBehaviour
         _enemySquads = new List<SquadController>();
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void AddSquadToList(SquadController squadController, Factions faction)
     {
-        if (other.TryGetComponent(out SquadController squad))
-        {
-            Factions faction = squad.Faction;
+        if (faction == GameManager.Instance.GetPlayerFaction())
+            _playerSquads.Add(squadController);
+        else
+            _enemySquads.Add(squadController);
 
-            if (faction == GameManager.Instance.GetPlayerFaction())
-                _playerSquads.Add(squad);
-            else
-                _enemySquads.Add(squad);
-
-            squad.OnDeath += SquadController_OnDeath;
-        }
+        squadController.OnDeath += SquadController_OnDeath;
     }
 
     private void SquadController_OnDeath(SquadController squadController, Factions faction)

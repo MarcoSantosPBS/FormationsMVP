@@ -15,7 +15,7 @@ public class EnemySpawnSquadAction : EnemyAction
             if (line.GetPlayerSquadsInLine().Count > 0 && line.GetEnemySquadsInLine().Count < 1)
             {
                 SquadScriptableObject bestUnit = GetBestUnitToSpawn(line);
-                _gameManager.InstantiateSquad(line.GetEnemySpawner(), bestUnit, _gameManager.GetEnemyFaction());
+                _gameManager.InstantiateSquad(line, line.GetEnemySpawner(), bestUnit, _gameManager.GetEnemyFaction());
             }
         }
     }

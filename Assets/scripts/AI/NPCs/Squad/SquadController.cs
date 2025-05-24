@@ -270,7 +270,6 @@ public class SquadController : MonoBehaviour
         closestUnit.squadPosition = oldPos;
 
         closestUnit.Mover.MoveToPosition(GridPositionToWorld(closestUnit.squadPosition.x, closestUnit.squadPosition.y));
-        deadUnit.transform.position = GridPositionToWorld(deadUnit.squadPosition.x, deadUnit.squadPosition.y);
     }
 
     private bool IsSquadDefeated()

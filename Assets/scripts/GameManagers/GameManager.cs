@@ -50,15 +50,17 @@ public class GameManager : MonoBehaviour
             if (line == null || _playerSelectedSquadSO == null)
                 return;
 
-            InstantiateSquad(line.GetAllySpawner(), _playerSelectedSquadSO, PlayerFaction);
+            InstantiateSquad(line, line.GetAllySpawner(), _playerSelectedSquadSO, PlayerFaction);
         }
     }
 
-    public void InstantiateSquad(Transform spawnTransform, SquadScriptableObject squadSO, Factions faction)
+    public void InstantiateSquad(LineSpawner lineSpawner, Transform spawnTransform, SquadScriptableObject squadSO, Factions faction)
     {
         Quaternion rotation = Quaternion.LookRotation(spawnTransform.forward);
 
-        Instantiate(SquadPrefab, spawnTransform.position, rotation).InitSquad(squadSO, faction);
+        SquadController squad = Instantiate(SquadPrefab, spawnTransform.position, rotation);
+        squad.InitSquad(squadSO, faction);
+        lineSpawner.AddSquadToList(squad, faction);
     }
 
     public SquadScriptableObject[] GetAvailableSquads(Factions faction)

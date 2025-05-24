@@ -43,16 +43,10 @@ public abstract class SquadBehaviour : MonoBehaviour
             {
                 Unit unit = controller.UnitsGrid[column, line];
 
-                //if (!controller.UnitsGrid[column, line].isActiveAndEnabled) { continue; }
+                if (!controller.UnitsGrid[column, line].IsAlive) { continue; }
+                if (!controller.UnitsGrid[column, line].isActiveAndEnabled) { continue; }
 
                 Vector3 destination = controller.GridPositionToWorld(column, line);
-
-                if (!unit.IsAlive) 
-                {
-                    unit.transform.position = destination;
-                    continue;
-                }
-
                 float dist = Vector3.Distance(unit.transform.position, destination);
                 if (dist < 0.1f) { continue; }
                 unit.Mover.MoveToPosition(destination);
